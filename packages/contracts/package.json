@@ -1,0 +1,22 @@
+{
+  "name": "@minga/contracts",
+  "version": "1.0.0",
+  "description": "Solidity contracts, Hardhat tests and deployment for MINGA Nature",
+  "scripts": {
+    "compile": "hardhat compile",
+    "test": "hardhat test",
+    "deploy:local": "hardhat run scripts/deploy.ts --network localhost",
+    "deploy:hsk": "hardhat run scripts/deploy.ts --network hskTestnet",
+    "verify:hsk": "hardhat verify --network hskTestnet",
+    "verify:blockscout": "node scripts/verify-blockscout.cjs"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+    "@openzeppelin/contracts": "^5.0.2",
+    "@types/node": "^20.11.0",
+    "dotenv": "^16.4.5",
+    "hardhat": "^2.22.3",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.4.5"
+  }
+}

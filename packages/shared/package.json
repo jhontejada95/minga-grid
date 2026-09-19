@@ -1,0 +1,26 @@
+{
+  "name": "@minga/shared",
+  "version": "1.0.0",
+  "description": "Shared types, ABIs, EIP-712 schemas, canonical serializer and chain configuration for MINGA Nature",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "export-abi": "node ../contracts/scripts/export-abi.cjs"
+  },
+  "dependencies": {
+    "viem": "^2.21.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.5"
+  }
+}

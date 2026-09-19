@@ -1,0 +1,34 @@
+{
+  "name": "@minga/backend",
+  "version": "1.0.0",
+  "description": "Standalone Fastify backend for MINGA Nature",
+  "type": "module",
+  "main": "dist/index.js",
+  "engines": {
+    "node": ">=22.13"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx watch src/index.ts",
+    "start": "node dist/index.js",
+    "local:stack": "tsx scripts/local-stack.ts",
+    "typecheck": "tsc --noEmit -p tsconfig.test.json",
+    "test": "node --import tsx --test \"test/**/*.test.ts\""
+  },
+  "dependencies": {
+    "@fastify/cookie": "^9.3.1",
+    "@fastify/cors": "^9.0.1",
+    "@fastify/multipart": "^8.3.0",
+    "@minga/shared": "*",
+    "dotenv": "^16.4.5",
+    "fastify": "^4.28.1",
+    "mppx": "^0.10.1",
+    "viem": "^2.21.0",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/node": "^22.7.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.4.5"
+  }
+}

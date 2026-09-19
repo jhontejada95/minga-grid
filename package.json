@@ -1,0 +1,31 @@
+{
+  "name": "minga-nature-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "MINGA Nature — Conservation agreements with cryptographic milestone settlement and AI review on HSK Chain",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "build": "npm run build --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "contracts:compile": "npm run compile --workspace=@minga/contracts",
+    "contracts:test": "npm run test --workspace=@minga/contracts",
+    "backend:dev": "npm run dev --workspace=@minga/backend",
+    "backend:test": "npm test --workspace=@minga/backend",
+    "backend:typecheck": "npm run typecheck --workspace=@minga/backend",
+    "frontend:dev": "npm run dev --workspace=@minga/frontend"
+  },
+  "keywords": [
+    "hsk",
+    "conservation",
+    "smart-contracts",
+    "eip712",
+    "fastify",
+    "nextjs",
+    "mpp"
+  ],
+  "author": "MINGA Nature Team",
+  "license": "MIT"
+}

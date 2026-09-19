@@ -1,0 +1,26 @@
+{
+  "manifestVersion": "1.0",
+  "agreementAddress": "0x0000000000000000000000000000000000000000",
+  "chainId": 133,
+  "milestoneId": 0,
+  "mode": "DEMO",
+  "declaredDate": "2026-08-25T14:30:00Z",
+  "description": "Complete Milestone 1 package — Baseline survey and community council resolution attached.",
+  "files": [
+    {
+      "requirementKey": "baseline-survey-v1",
+      "fileName": "baseline-report.json",
+      "sha256": "4a1804fca32d3b244799052b61404e339b6e838e55e81f185c88e8aa01901a11",
+      "mimeType": "application/json",
+      "size": 412
+    },
+    {
+      "requirementKey": "community-assembly-resolution",
+      "fileName": "community-resolution.json",
+      "sha256": "81f185c88e8aa01901a114a1804fca32d3b244799052b61404e339b6e838e55e",
+      "mimeType": "application/json",
+      "size": 395
+    }
+  ],
+  "unfulfilledRequirements": []
+}

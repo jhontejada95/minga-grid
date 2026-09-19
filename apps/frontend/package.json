@@ -1,0 +1,36 @@
+{
+  "name": "@minga/frontend",
+  "version": "1.0.0",
+  "description": "Next.js / React frontend for MINGA Nature",
+  "private": true,
+  "scripts": {
+    "dev": "next dev -p 3000",
+    "build": "next build",
+    "start": "next start -p 3000",
+    "typecheck": "tsc --noEmit",
+    "test": "node --import tsx --test \"test/**/*.test.mts\"",
+    "e2e:local": "node e2e/full-flow.mjs"
+  },
+  "dependencies": {
+    "@minga/shared": "*",
+    "@tanstack/react-query": "^5.59.0",
+    "@walletconnect/ethereum-provider": "^2.17.0",
+    "clsx": "^2.1.1",
+    "next": "^14.2.15",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "viem": "^2.21.0",
+    "wagmi": "^2.12.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.7.0",
+    "@types/react": "^18.3.11",
+    "@types/react-dom": "^18.3.0",
+    "autoprefixer": "^10.4.20",
+    "playwright-core": "^1.63.0",
+    "postcss": "^8.4.47",
+    "tailwindcss": "^3.4.13",
+    "tsx": "^4.19.0",
+    "typescript": "^5.4.5"
+  }
+}

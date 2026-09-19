@@ -1,0 +1,21 @@
+{
+  "manifestVersion": "1.0",
+  "agreementAddress": "0x0000000000000000000000000000000000000000",
+  "chainId": 133,
+  "milestoneId": 0,
+  "mode": "DEMO",
+  "declaredDate": "2026-08-25T10:00:00Z",
+  "description": "Incomplete submission — missing community assembly resolution",
+  "files": [
+    {
+      "requirementKey": "baseline-survey-v1",
+      "fileName": "baseline-report.json",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "mimeType": "application/json",
+      "size": 412
+    }
+  ],
+  "unfulfilledRequirements": [
+    "community-assembly-resolution"
+  ]
+}

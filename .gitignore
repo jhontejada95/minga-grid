@@ -1,0 +1,72 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Testing and coverage
+coverage/
+*.lcov
+.nyc_output
+
+# Build outputs
+dist/
+build/
+.next/
+.next-local/
+.local-stack/
+out/
+
+# Hardhat
+artifacts/
+cache/
+typechain-types/
+
+# Database and Storage
+data/
+*.sqlite
+*.sqlite3
+*.db
+uploads/
+evidence_storage/
+
+# Environment: every .env variant is private; only the template is tracked
+.env
+.env.*
+!.env.example
+*.env
+!.env.example
+
+# Keys and credentials, in case one is ever saved next to the code
+*.pem
+*.key
+*.keystore
+keystore/
+secrets/
+
+# Local agent settings (permissions are per machine)
+.claude/settings.local.json
+
+# Local dev stack, test and build output
+.local-stack/
+.next-local/
+test-results/
+playwright-report/
+*.tsbuildinfo
+
+# Design inputs and archives that are not part of the source
+*.zip
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS and Editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo

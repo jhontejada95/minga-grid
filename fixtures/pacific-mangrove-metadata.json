@@ -1,0 +1,38 @@
+{
+  "projectId": "pacific-mangrove-demo",
+  "name": "Pacific Mangrove — Demo",
+  "description": "Restoration and sustainable protection of 1,200 hectares of degraded mangrove ecosystems along the Colombian Pacific coastline.",
+  "location": {
+    "region": "Chocó Biogeographic / Pacific Coast",
+    "country": "Colombia",
+    "coordinates": "3.8822° N, 77.0311° W"
+  },
+  "methodology": {
+    "name": "Demonstration Community Coastal Mangrove Standard v1.0",
+    "version": "1.0",
+    "hash": "0x4b726567656e2d6d616e67726f76652d6d6574686f646f6c6f67792d76312e30"
+  },
+  "currency": "mUSD",
+  "totalBudget": "100000000",
+  "communitySplitBps": 8000,
+  "milestones": [
+    {
+      "id": 0,
+      "title": "Baseline Survey and Community Work Plan",
+      "amount": "50000000",
+      "requiredEvidence": [
+        "baseline-survey-v1",
+        "community-assembly-resolution"
+      ]
+    },
+    {
+      "id": 1,
+      "title": "Year 1 Restoration and Canopy Density Report",
+      "amount": "50000000",
+      "requiredEvidence": [
+        "restoration-monitoring-report-y1",
+        "drone-canopy-orthomosaic"
+      ]
+    }
+  ]
+}
