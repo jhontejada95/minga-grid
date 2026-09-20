@@ -166,3 +166,32 @@ labelling system and the audit are the same piece of work approached from two di
 
 If you find yourself wanting to show a number you cannot badge, that is the system telling you to
 delete it.
+
+---
+
+# Addendum 2 — a fifth kind: `cited`
+
+The first addendum said "if you cannot badge a number, delete it". That rule was written to catch
+**invented** numbers, and it was applied correctly to the $8.4B market figure — but the rule was
+incomplete, not the judgement.
+
+Deleting a real, sourced figure is not more honest than showing it. It just loses the argument.
+What is dishonest is an **unsourced** number. So: name the source, link it, and let the reader
+decide what it is worth.
+
+`packages/shared/src/provenance.ts` now has a fifth kind:
+
+| Kind | Badge | Applies to | Tone |
+|---|---|---|---|
+| `cited` | `CITED` | figures from published external research | neutral |
+
+`PROVENANCE.cited.source` carries `{ name, url }`. Render the badge as a link to that URL, or put
+the source name in the tooltip — a citation the reader cannot follow is not a citation.
+
+**Restore the $8.4B figure in "The problem" with the `CITED` badge.** `PROVENANCE_ORDER` already
+includes it, so the footer legend picks it up with no further change.
+
+The test for any number on screen is unchanged in spirit and now complete: **every figure must be
+able to say where it came from.** Measured here, read from the chain, agreed in the terms,
+generated, or cited from a named source. If it can say none of those, it does not belong on the
+page.

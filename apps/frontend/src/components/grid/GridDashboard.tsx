@@ -48,14 +48,25 @@ const TONE_COLOR: Record<(typeof PROVENANCE)[ProvenanceKind]["tone"], string> = 
 function ProvenanceBadge({ kind }: { kind: ProvenanceKind }) {
   const p = PROVENANCE[kind];
   const color = TONE_COLOR[p.tone];
-  return (
-    <span
-      title={p.explanation}
-      className="inline-flex shrink-0 items-center gap-1.5 rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.06em]"
-      style={{ borderColor: `${color}33`, background: `${color}1a`, color, fontFamily: MONO }}
-    >
+  const className = "inline-flex shrink-0 items-center gap-1.5 rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.06em]";
+  const style: React.CSSProperties = { borderColor: `${color}33`, background: `${color}1a`, color, fontFamily: MONO };
+  const content = (
+    <>
       {kind === "live" && <span className="h-[5px] w-[5px] shrink-0 animate-pulse rounded-full" style={{ background: color }} />}
       {p.label}
+      {p.source && <span aria-hidden="true">↗</span>}
+    </>
+  );
+  if (p.source) {
+    return (
+      <a href={p.source.url} target="_blank" rel="noreferrer" title={`${p.explanation} Source: ${p.source.name}.`} className={`${className} transition-colors hover:brightness-125`} style={style}>
+        {content}
+      </a>
+    );
+  }
+  return (
+    <span title={p.explanation} className={className} style={style}>
+      {content}
     </span>
   );
 }

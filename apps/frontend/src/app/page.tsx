@@ -45,14 +45,32 @@ function glow(color: string) {
 function ProvenanceBadge({ kind }: { kind: ProvenanceKind }) {
   const p = PROVENANCE[kind];
   const color = TONE_COLOR[p.tone];
-  return (
-    <span
-      title={p.explanation}
-      className="inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.06em]"
-      style={{ borderColor: `${color}33`, background: `${color}1a`, color, fontFamily: MONO }}
-    >
+  const className = "inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.06em]";
+  const style: React.CSSProperties = { borderColor: `${color}33`, background: `${color}1a`, color, fontFamily: MONO };
+  const content = (
+    <>
       {kind === "live" && <span className="h-[5px] w-[5px] shrink-0 animate-pulse rounded-full" style={{ background: color }} />}
       {p.label}
+      {p.source && <svg viewBox="0 0 24 24" width={9} height={9}>{ICONS.arrow}</svg>}
+    </>
+  );
+  if (p.source) {
+    return (
+      <a
+        href={p.source.url}
+        target="_blank"
+        rel="noreferrer"
+        title={`${p.explanation} Source: ${p.source.name}.`}
+        className={`${className} transition-colors hover:brightness-125`}
+        style={style}
+      >
+        {content}
+      </a>
+    );
+  }
+  return (
+    <span title={p.explanation} className={className} style={style}>
+      {content}
     </span>
   );
 }
@@ -121,6 +139,12 @@ const ICONS = {
     <>
       <circle cx={12} cy={12} r={8.5} fill="none" stroke="currentColor" strokeWidth={1.6} />
       <path d="M12 7.5v9M9.5 9.8c0-1 1-1.8 2.5-1.8s2.5.7 2.5 1.7-1 1.4-2.5 1.8-2.5.9-2.5 1.9 1 1.7 2.5 1.7 2.5-.7 2.5-1.7" fill="none" stroke="currentColor" strokeWidth={1.4} strokeLinecap="round" />
+    </>
+  ),
+  globe: (
+    <>
+      <circle cx={12} cy={12} r={8.5} fill="none" stroke="currentColor" strokeWidth={1.6} />
+      <path d="M3.5 12h17M12 3.5c2.5 2.3 3.8 5.3 3.8 8.5s-1.3 6.2-3.8 8.5c-2.5-2.3-3.8-5.3-3.8-8.5S9.5 5.8 12 3.5Z" fill="none" stroke="currentColor" strokeWidth={1.4} />
     </>
   ),
   pulse: <path d="M2 12h4l2-6 4 12 2-6h4" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round" />,
@@ -315,9 +339,10 @@ export default function Landing() {
         </section>
 
         <Section id="problem" eyebrow="The problem" title="The cheapest megawatt is the one nobody uses. Nobody gets paid for it.">
-          <div className="grid gap-3 sm:grid-cols-2">
+          <div className="grid gap-3 sm:grid-cols-3">
             <Figure icon={ICONS.bolt} value="1.5–1.8×" label="evening peak vs the day's own average" provenance="live" accent={AMBER} />
             <Figure icon={ICONS.coin} value="$0.31" label="USD per kWh, 18:00–21:00 window" provenance="live" accent={BLUE} />
+            <Figure icon={ICONS.globe} value="$8.4B" label="demand-response market that skipped the region" provenance="cited" />
           </div>
           <Prose>
             Every evening between six and nine, Colombian wholesale electricity costs well over half again what it

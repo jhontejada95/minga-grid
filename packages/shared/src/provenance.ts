@@ -9,7 +9,7 @@
  * The wording lives here so the API and the UI cannot drift apart and describe the same number two
  * different ways.
  */
-export type ProvenanceKind = "live" | "onchain" | "terms" | "simulated";
+export type ProvenanceKind = "live" | "onchain" | "terms" | "simulated" | "cited";
 
 export interface Provenance {
   kind: ProvenanceKind;
@@ -19,6 +19,8 @@ export interface Provenance {
   explanation: string;
   /** Which accent the badge uses, by role — the theme maps these to its own colours. */
   tone: "telemetry" | "verified" | "neutral" | "caution";
+  /** Where a cited figure came from, so the reader can judge the source instead of trusting us. */
+  source?: { name: string; url: string };
 }
 
 export const PROVENANCE: Record<ProvenanceKind, Provenance> = {
@@ -43,6 +45,17 @@ export const PROVENANCE: Record<ProvenanceKind, Provenance> = {
       "Part of the agreement rather than a measurement: the committed reduction, the tariff, the event window and the split. They are fixed, committed in the contract's terms hash, and the contract rejects any settlement that departs from them.",
     tone: "neutral",
   },
+  cited: {
+    kind: "cited",
+    label: "CITED",
+    explanation:
+      "Taken from published external research rather than measured here. The source is named and linked so you can judge it yourself.",
+    tone: "neutral",
+    source: {
+      name: "Codibly — demand-response flexibility market",
+      url: "https://codibly.com/blog/articles/how-demand-response-aggregators-make-money-business-models-for-the-8-44b-flexibility-market",
+    },
+  },
   simulated: {
     kind: "simulated",
     label: "SIMULATED",
@@ -52,5 +65,11 @@ export const PROVENANCE: Record<ProvenanceKind, Provenance> = {
   },
 };
 
-/** The four, in the order a legend should list them: most trustworthy first. */
-export const PROVENANCE_ORDER: ProvenanceKind[] = ["onchain", "live", "terms", "simulated"];
+/**
+ * In the order a legend should list them: most directly verifiable first.
+ *
+ * `cited` exists because deleting a real, sourced figure is not more honest than showing it —
+ * it just loses the argument. What is dishonest is an unsourced number. Name the source, link it,
+ * and let the reader decide what it is worth.
+ */
+export const PROVENANCE_ORDER: ProvenanceKind[] = ["onchain", "live", "terms", "cited", "simulated"];
