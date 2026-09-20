@@ -15,7 +15,7 @@ import { useId, useMemo, useState } from "react";
 import { cotTime, kwh, type CurvePoint } from "@/lib/grid";
 
 const BLUE = "#3B82F6";
-const EMERALD = "#10B981";
+const EMERALD = "#059669";
 const MUTED = "#64748B";
 const GRID = "#1E293B";
 const INK = "#F8FAFC";

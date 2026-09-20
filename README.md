@@ -13,6 +13,7 @@ pays the site and the protocol together, or pays neither.
 |---|---|
 | Live app | https://minga-grid.vercel.app |
 | Programme on HSK | [`0x315DE6Ff…809cEC`](https://testnet-explorer.hskchain.net/address/0x315DE6Ff84680012cf81bFd9C256032996809cEC) |
+| Evidence | [`docs/evidence.md`](docs/evidence.md) — every transaction, including four attacks the contract rejected on chain |
 | A settled event | [`0xb075e576…c0e7ff9b`](https://testnet-explorer.hskchain.net/tx/0xb075e57669939aa557abe8393fea6b2cf1cae0a71c2715270ff1c2fac0e7ff9b) — 67.50 mUSD to the site, 7.50 to the protocol |
 | Network | HSK Chain testnet, chain id 133 |
 | Tracks | Colombia Hackathon · AI x Ethereum & Agent Economy · HSK Chain |
@@ -184,9 +185,7 @@ read live from XM. The payment and the 90/10 split, which you can open on Blocks
 development key. There is no physical meter connected — and with one, the baseline would still need
 five days of history before it existed. A signature proves **non-repudiation**: that this device
 said this. It does **not** prove the meter was not physically tampered with. That requires a secure
-element, and it is the next step rather than a solved problem. `docs/hardware-roadmap.md` lays out
-that path in full — measuring, attesting and transporting, and the one cryptographic trap (a curve
-mismatch between the cheap secure element and Ethereum) that has sunk other projects.
+element, and it is the next step rather than a solved problem.
 
 The baseline is a convention agreed in the programme terms, not a measurement of a world that did
 not happen. No utility has signed anything. The token has no monetary value.
@@ -200,8 +199,9 @@ The contract knows nothing about electricity. It knows that an offtaker funded a
 signed a measurement, and an agent verified it against an agreed baseline. That is why the next
 steps are mostly about sensors and counterparties rather than about Solidity:
 
-- Secure-element device identity, so a signature says something about the physical meter — see
-  `docs/hardware-roadmap.md` for the concrete plan and the curve-mismatch trap it warns against.
+- Secure-element device identity, so a signature says something about the physical meter.
+  `docs/hardware-roadmap.md` has the concrete path: which meter, which secure element, the
+  secp256k1-versus-P-256 trap that catches most attempts, and a two-week Phase 1.
 - Aggregation: one programme over thousands of sites instead of one, which is how demand response
   actually reaches households.
 - A pilot with a single large consumer that already has interval metering, before going near a
