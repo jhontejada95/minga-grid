@@ -184,7 +184,9 @@ read live from XM. The payment and the 90/10 split, which you can open on Blocks
 development key. There is no physical meter connected — and with one, the baseline would still need
 five days of history before it existed. A signature proves **non-repudiation**: that this device
 said this. It does **not** prove the meter was not physically tampered with. That requires a secure
-element, and it is the next step rather than a solved problem.
+element, and it is the next step rather than a solved problem. `docs/hardware-roadmap.md` lays out
+that path in full — measuring, attesting and transporting, and the one cryptographic trap (a curve
+mismatch between the cheap secure element and Ethereum) that has sunk other projects.
 
 The baseline is a convention agreed in the programme terms, not a measurement of a world that did
 not happen. No utility has signed anything. The token has no monetary value.
@@ -198,7 +200,8 @@ The contract knows nothing about electricity. It knows that an offtaker funded a
 signed a measurement, and an agent verified it against an agreed baseline. That is why the next
 steps are mostly about sensors and counterparties rather than about Solidity:
 
-- Secure-element device identity, so a signature says something about the physical meter.
+- Secure-element device identity, so a signature says something about the physical meter — see
+  `docs/hardware-roadmap.md` for the concrete plan and the curve-mismatch trap it warns against.
 - Aggregation: one programme over thousands of sites instead of one, which is how demand response
   actually reaches households.
 - A pilot with a single large consumer that already has interval metering, before going near a

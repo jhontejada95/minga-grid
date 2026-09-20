@@ -102,3 +102,6 @@ Logo_minga_nature.png
 # the top of this file). Kept locally in case that layer is ever recovered.
 apps/frontend/legacy/
 docs/legacy/
+
+# Reference design material, not part of the product
+design/

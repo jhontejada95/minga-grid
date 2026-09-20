@@ -35,6 +35,55 @@ function Figure({ value, label, accent }: { value: string; label: string; accent
   );
 }
 
+const HARDWARE_STAGES: Array<{ n: string; title: string; body: string; accent?: string; icon: React.ReactNode }> = [
+  {
+    n: "01",
+    title: "Measure",
+    body: "CT clamp + metering IC",
+    icon: (
+      <path d="M2 12h4l2-6 4 12 2-6h4" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round" />
+    ),
+  },
+  {
+    n: "02",
+    title: "Attest",
+    body: "Secure element, secp256k1 signature",
+    accent: AQUA,
+    icon: (
+      <>
+        <rect x={5} y={11} width={14} height={9} rx={1.5} fill="none" stroke="currentColor" strokeWidth={1.6} />
+        <path d="M8 11V8a4 4 0 0 1 8 0v3" fill="none" stroke="currentColor" strokeWidth={1.6} />
+        <circle cx={12} cy={15.5} r={1.4} fill="currentColor" />
+      </>
+    ),
+  },
+  {
+    n: "03",
+    title: "Transport",
+    body: "WiFi / LTE-M / LoRaWAN",
+    icon: (
+      <>
+        <path d="M4 9.5a12 12 0 0 1 16 0" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" />
+        <path d="M7 13a7.5 7.5 0 0 1 10 0" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" />
+        <path d="M10 16.5a3 3 0 0 1 4 0" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" />
+        <circle cx={12} cy={19.5} r={1.2} fill="currentColor" />
+      </>
+    ),
+  },
+  {
+    n: "04",
+    title: "Settle",
+    body: "Agent verifies, contract pays — unchanged",
+    accent: BLUE,
+    icon: (
+      <>
+        <rect x={4} y={4} width={16} height={16} rx={3} fill="none" stroke="currentColor" strokeWidth={1.6} />
+        <path d="M8 12.5l2.5 2.5L16 9.5" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" />
+      </>
+    ),
+  },
+];
+
 const STEPS = [
   ["The agent senses", "It reads XM's published hourly price and reservoir level, compares the evening window against that day's own average, and decides by arithmetic whether the hour is worth an event."],
   ["The meters sign", "Every fifteen-minute reading is signed by the device's own key. The contract verifies a meter signature exactly as it verifies a human wallet."],
@@ -174,6 +223,43 @@ export default function Landing() {
             The baseline is a convention agreed in the programme terms, not a measurement of a world that did not
             happen. No utility has signed anything. What is real is the contract, the verification, and the payment you
             can watch execute.
+          </p>
+        </Section>
+
+        <Section eyebrow="The next step" title="From a simulated meter to a real one.">
+          <p>
+            A real device has to solve three separate problems, and solving one does not solve the others:
+            measure the watt-hours, attest that this specific device said so, and transport the statement out
+            of the building. Everything downstream — verification, the baseline, the payout — is already built
+            and does not change.
+          </p>
+          <ol className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            {HARDWARE_STAGES.map((stage) => (
+              <li key={stage.n} className="rounded-lg border p-4" style={{ background: SURFACE, borderColor: stage.accent ?? HAIRLINE }}>
+                <svg viewBox="0 0 24 24" width={22} height={22} style={{ color: stage.accent ?? MUTED }}>{stage.icon}</svg>
+                <div className="mt-2 text-[12px]" style={{ color: MUTED }}>{stage.n}</div>
+                <div className="mt-0.5 text-[15px] font-semibold" style={{ color: stage.accent ?? INK }}>{stage.title}</div>
+                <p className="mt-1.5 text-[13px] leading-relaxed" style={{ color: INK_2 }}>{stage.body}</p>
+              </li>
+            ))}
+          </ol>
+          <p>
+            The middle box is the hard one. The cheap secure element everyone reaches for first signs a
+            different elliptic curve than Ethereum uses — a mismatch that has sunk other projects after the
+            hardware was already ordered. <code>docs/hardware-roadmap.md</code> in the repository writes out the
+            trap and the three honest ways around it, plus a costed, phased pilot starting at one cooperating
+            site for about USD 150 in hardware.
+          </p>
+          <p>
+            <a
+              href="https://github.com/jhontejada95/minga-grid/blob/main/docs/hardware-roadmap.md"
+              target="_blank"
+              rel="noreferrer"
+              className="font-semibold"
+              style={{ color: BLUE }}
+            >
+              Read the full hardware roadmap →
+            </a>
           </p>
         </Section>
 
