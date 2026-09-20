@@ -9,7 +9,6 @@ import { PROVENANCE, PROVENANCE_ORDER, type ProvenanceKind } from "@minga/shared
  */
 const VOID = "#090D14";
 const SURFACE = "rgba(15,23,42,0.8)";
-const SURFACE_SOLID = "#0F172A";
 const BORDER = "#1E293B";
 const BORDER_STRONG = "#334155";
 const INK = "#F8FAFC";
