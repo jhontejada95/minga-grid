@@ -21,6 +21,11 @@ export interface Provenance {
   tone: "telemetry" | "verified" | "neutral" | "caution";
   /** Where a cited figure came from, so the reader can judge the source instead of trusting us. */
   source?: { name: string; url: string };
+  /** Spanish variant for label and explanation */
+  es?: {
+    label: string;
+    explanation: string;
+  };
 }
 
 export const PROVENANCE: Record<ProvenanceKind, Provenance> = {
@@ -30,6 +35,11 @@ export const PROVENANCE: Record<ProvenanceKind, Provenance> = {
     explanation:
       "Fetched from XM, Colombia's system operator, when this page loaded. XM publishes a couple of days behind, so the date of the reading is shown beside it.",
     tone: "telemetry",
+    es: {
+      label: "EN VIVO · XM",
+      explanation:
+        "Obtenido de XM, el operador del sistema en Colombia, al cargar esta página. XM publica con un par de días de rezago, por lo que la fecha de la lectura se muestra al lado.",
+    },
   },
   onchain: {
     kind: "onchain",
@@ -37,6 +47,11 @@ export const PROVENANCE: Record<ProvenanceKind, Provenance> = {
     explanation:
       "Read from the contract on HSK Chain. Nothing here is stored in this application — it is whatever the chain answers, and you can verify it on the explorer.",
     tone: "verified",
+    es: {
+      label: "EN CADENA",
+      explanation:
+        "Leído directamente del contrato en HSK Chain. Nada aquí se almacena en esta aplicación — es lo que la cadena responde, verificable en el explorador.",
+    },
   },
   terms: {
     kind: "terms",
@@ -44,6 +59,11 @@ export const PROVENANCE: Record<ProvenanceKind, Provenance> = {
     explanation:
       "Part of the agreement rather than a measurement: the committed reduction, the tariff, the event window and the split. They are fixed, committed in the contract's terms hash, and the contract rejects any settlement that departs from them.",
     tone: "neutral",
+    es: {
+      label: "TÉRMINOS DEL PROGRAMA",
+      explanation:
+        "Parte del acuerdo y no una medición: la reducción comprometida, la tarifa, la ventana de evento y la división. Son fijos, comprometidos en el termsHash, y el contrato rechaza cualquier liquidación que se aparte de ellos.",
+    },
   },
   cited: {
     kind: "cited",
@@ -55,6 +75,11 @@ export const PROVENANCE: Record<ProvenanceKind, Provenance> = {
       name: "Codibly — demand-response flexibility market",
       url: "https://codibly.com/blog/articles/how-demand-response-aggregators-make-money-business-models-for-the-8-44b-flexibility-market",
     },
+    es: {
+      label: "CITADO",
+      explanation:
+        "Tomado de investigaciones externas publicadas en lugar de medido aquí. La fuente se menciona y enlaza para que puedas juzgarla directamente.",
+    },
   },
   simulated: {
     kind: "simulated",
@@ -62,8 +87,25 @@ export const PROVENANCE: Record<ProvenanceKind, Provenance> = {
     explanation:
       "Generated, not measured. No physical meter is connected, and a baseline needs five days of history before it exists. The readings carry real signatures and are verified like real ones — only the consumption behind them is invented.",
     tone: "caution",
+    es: {
+      label: "SIMULADO",
+      explanation:
+        "Generado, no medido. No hay un medidor físico conectado, y una línea base requiere cinco días de historial antes de existir. Las lecturas llevan firmas reales y se verifican como reales — solo el consumo detrás es inventado.",
+    },
   },
 };
+
+export function getProvenance(kind: ProvenanceKind, lang: "en" | "es" = "en"): Provenance {
+  const p = PROVENANCE[kind];
+  if (lang === "es" && p.es) {
+    return {
+      ...p,
+      label: p.es.label,
+      explanation: p.es.explanation,
+    };
+  }
+  return p;
+}
 
 /**
  * In the order a legend should list them: most directly verifiable first.

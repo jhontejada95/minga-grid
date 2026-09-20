@@ -11,3 +11,4 @@ export * from "./meter-sim.js";
 export * from "./settlement.js";
 export * from "./grid-feed.js";
 export * from "./provenance.js";
+export * from "./i18n.js";

@@ -13,6 +13,7 @@
  */
 import { useId, useMemo, useState } from "react";
 import { cotTime, kwh, type CurvePoint } from "@/lib/grid";
+import { useT } from "@/lib/lang";
 
 const BLUE = "#3B82F6";
 const EMERALD = "#059669";
@@ -35,6 +36,7 @@ export function EventChart({
   actual: CurvePoint[];
   actualLabel: string;
 }) {
+  const { t } = useT();
   const clipId = useId();
   const [hover, setHover] = useState<number | null>(null);
   const [showTable, setShowTable] = useState(false);
@@ -71,7 +73,7 @@ export function EventChart({
           <svg width="18" height="8" className="shrink-0" aria-hidden="true">
             <line x1="0" y1="4" x2="18" y2="4" stroke={MUTED} strokeWidth="2" strokeDasharray="4 3" />
           </svg>
-          Baseline — what five ordinary evenings predicted
+          {t("chart.baselineLegend")}
         </span>
         <span className="inline-flex items-center gap-2">
           <svg width="18" height="8" className="shrink-0" aria-hidden="true">
@@ -83,7 +85,7 @@ export function EventChart({
           <svg width="14" height="10" className="shrink-0" aria-hidden="true">
             <rect width="14" height="10" rx="2" fill={EMERALD} opacity="0.45" />
           </svg>
-          Avoided energy — what gets paid
+          {t("chart.avoidedLegend")}
         </span>
       </div>
 
@@ -135,7 +137,7 @@ export function EventChart({
 
         {avoidedWh > 0 && (
           <text x={labelX} y={labelY + 4} textAnchor="middle" fontSize="13" fontWeight="600" fontFamily={MONO} fill={INK}>
-            {kwh(avoidedWh)} kWh avoided
+            {kwh(avoidedWh)} {t("chart.kwhAvoided")}
           </text>
         )}
 
@@ -150,10 +152,10 @@ export function EventChart({
                 {cotTime(baseline[hover]?.t ?? 0)} COT
               </text>
               <text x="10" y="38" fontSize="12" fontFamily={MONO} fill={INK_2}>
-                Baseline {kwh(baseline[hover]?.wh ?? 0, 2)} kWh
+                {t("chart.baselineHover")} {kwh(baseline[hover]?.wh ?? 0, 2)} kWh
               </text>
               <text x="10" y="56" fontSize="12" fontFamily={MONO} fill={INK}>
-                Measured {kwh(actual[hover]?.wh ?? 0, 2)} kWh
+                {t("chart.measuredHover")} {kwh(actual[hover]?.wh ?? 0, 2)} kWh
               </text>
             </g>
           </g>
@@ -167,17 +169,17 @@ export function EventChart({
           className="text-[12px] underline underline-offset-2"
           style={{ color: MUTED }}
         >
-          {showTable ? "Hide the readings" : "Show the readings as a table"}
+          {showTable ? t("chart.hideTable") : t("chart.showTable")}
         </button>
         {showTable && (
           <div className="mt-2 max-h-48 overflow-auto rounded border" style={{ borderColor: GRID }}>
             <table className="w-full text-left text-[12px]">
               <thead>
                 <tr style={{ color: MUTED }}>
-                  <th className="px-3 py-1.5 font-medium">Interval (COT)</th>
-                  <th className="px-3 py-1.5 font-medium">Baseline kWh</th>
-                  <th className="px-3 py-1.5 font-medium">Measured kWh</th>
-                  <th className="px-3 py-1.5 font-medium">Avoided kWh</th>
+                  <th className="px-3 py-1.5 font-medium">{t("chart.colInterval")}</th>
+                  <th className="px-3 py-1.5 font-medium">{t("chart.colBaseline")}</th>
+                  <th className="px-3 py-1.5 font-medium">{t("chart.colMeasured")}</th>
+                  <th className="px-3 py-1.5 font-medium">{t("chart.colAvoided")}</th>
                 </tr>
               </thead>
               <tbody style={{ color: INK_2, fontFamily: MONO }}>
@@ -195,8 +197,7 @@ export function EventChart({
         )}
       </div>
       <figcaption className="mt-2 text-[11px]" style={{ color: MUTED }}>
-        Peak of {(maxWh / 1000).toFixed(1)} kWh per 15-minute interval. Readings are synthetic and signed by the
-        device key; the signature proves non-repudiation, not physical tamper resistance.
+        Peak of {(maxWh / 1000).toFixed(1)} {t("chart.caption")}
       </figcaption>
     </figure>
   );

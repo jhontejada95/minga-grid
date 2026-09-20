@@ -13,11 +13,13 @@
  */
 import { useCallback, useEffect, useState } from "react";
 import { useAccount, useWaitForTransactionReceipt, useWriteContract } from "wagmi";
-import { conservationAgreementAbi, PROVENANCE, PROVENANCE_ORDER, type ProvenanceKind } from "@minga/shared";
+import { conservationAgreementAbi, PROVENANCE_ORDER, getProvenance, type ProvenanceKind } from "@minga/shared";
 import type { Address, Hex } from "viem";
 import { CHAIN_ID, EXPLORER_URL } from "@/lib/config";
+import { useT } from "@/lib/lang";
 import { EventChart } from "./EventChart";
 import { WalletButton } from "./WalletButton";
+import { LanguageToggle } from "./LanguageToggle";
 import {
   fetchProgram, fetchSignal, fetchSite, kwh, runSettlement, short, usd,
   type AgentStep, type GridProgramResponse, type GridSignalResponse, type GridSiteResponse, type SettleResponse,
@@ -37,16 +39,16 @@ const STATUS = { good: "#10B981", warning: "#F59E0B", critical: "#F43F5E" } as c
 const SANS = "'Plus Jakarta Sans', 'Inter', system-ui, sans-serif";
 const MONO = "'JetBrains Mono', ui-monospace, monospace";
 
-/** Where a number came from, in the theme's own colours — see packages/shared/src/provenance.ts. */
-const TONE_COLOR: Record<(typeof PROVENANCE)[ProvenanceKind]["tone"], string> = {
+const TONE_COLOR = {
   telemetry: CYAN,
   verified: EMERALD,
   neutral: MUTED,
   caution: AMBER,
-};
+} as const;
 
 function ProvenanceBadge({ kind }: { kind: ProvenanceKind }) {
-  const p = PROVENANCE[kind];
+  const { lang } = useT();
+  const p = getProvenance(kind, lang);
   const color = TONE_COLOR[p.tone];
   const className = "inline-flex shrink-0 items-center gap-1.5 rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.06em]";
   const style: React.CSSProperties = { borderColor: `${color}33`, background: `${color}1a`, color, fontFamily: MONO };
@@ -73,25 +75,16 @@ function ProvenanceBadge({ kind }: { kind: ProvenanceKind }) {
 
 type Scenario = "delivered" | "shortfall";
 
-/** What the agent is about to do, shown greyed out before the first run. */
-const PIPELINE: [string, string][] = [
-  ["sense", "read the grid signal and decide whether an event is warranted"],
-  ["verify", "recover the signer of every meter reading in the window"],
-  ["baseline", "rebuild the counterfactual from five ordinary evenings"],
-  ["measure", "baseline minus measured equals avoided energy"],
-  ["decide", "compare against the reduction the site committed to"],
-  ["sign", "produce one of the two signatures release() requires"],
-];
-
 function Panel({
   title, subtitle, badge, badgeDate, children,
 }: { title: string; subtitle?: string; badge?: ProvenanceKind; badgeDate?: string; children: React.ReactNode }) {
+  const { t } = useT();
   return (
     <section className="rounded-lg border p-5 backdrop-blur-lg" style={{ background: SURFACE, borderColor: HAIRLINE }}>
       <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
         <h2 className="text-[15px] font-bold" style={{ color: INK, fontFamily: SANS }}>{title}</h2>
         {badge && <ProvenanceBadge kind={badge} />}
-        {badgeDate && <span className="text-[11px]" style={{ color: MUTED, fontFamily: MONO }}>published {badgeDate}</span>}
+        {badgeDate && <span className="text-[11px]" style={{ color: MUTED, fontFamily: MONO }}>{t("app.published")} {badgeDate}</span>}
       </div>
       {subtitle && <p className="mb-4 mt-1 text-[12px]" style={{ color: MUTED, fontFamily: MONO }}>{subtitle}</p>}
       {!subtitle && <div className="mb-4" />}
@@ -112,6 +105,7 @@ function Stat({ label, value, note, accent, badge }: { label: string; value: str
 }
 
 export function GridDashboard() {
+  const { t } = useT();
   const [signal, setSignal] = useState<GridSignalResponse | null>(null);
   const [program, setProgram] = useState<GridProgramResponse | null>(null);
   const [site, setSite] = useState<GridSiteResponse | null>(null);
@@ -196,7 +190,17 @@ export function GridDashboard() {
   const stress = signal?.decision.stress ?? "normal";
   const stressColor = stress === "critical" ? STATUS.critical : stress === "elevated" ? STATUS.warning : STATUS.good;
   const stressIcon = stress === "critical" ? "bolt" : stress === "elevated" ? "warning" : "check_circle";
+  const stressText = stress === "critical" ? t("app.stressCritical") : stress === "elevated" ? t("app.stressElevated") : t("app.stressNormal");
   const curve = site?.scenarios[scenario];
+
+  const PIPELINE: [string, string][] = [
+    ["sense", t("pipeline.sense")],
+    ["verify", t("pipeline.verify")],
+    ["baseline", t("pipeline.baseline")],
+    ["measure", t("pipeline.measure")],
+    ["decide", t("pipeline.decide")],
+    ["sign", t("pipeline.sign")],
+  ];
 
   return (
     <div className="min-h-screen px-5 py-8 md:px-10" style={{ background: PLANE, color: INK }}>
@@ -208,28 +212,30 @@ export function GridDashboard() {
               MINGA <span style={{ color: EMERALD }}>Grid</span>
             </h1>
             <p className="text-[14px]" style={{ color: INK_2 }}>
-              Get paid for the electricity you don’t use when the grid is about to fall.
+              {t("app.tagline")}
             </p>
           </div>
           <div className="mt-2 flex flex-wrap items-center justify-between gap-3">
             <p className="text-[12px]" style={{ color: MUTED, fontFamily: MONO }}>
-              HSK testnet · no monetary value · live grid price from XM · meter readings are synthetic and signed by a device key
+              {t("app.metaNotice")}
             </p>
-            <WalletButton />
+            <div className="flex items-center gap-3">
+              <LanguageToggle />
+              <WalletButton />
+            </div>
           </div>
         </header>
 
         {error && (
           <div className="rounded-md border px-4 py-3 text-[13px]" style={{ borderColor: STATUS.critical, color: INK_2 }}>
-            <strong style={{ color: STATUS.critical }}>Backend unreachable.</strong> {error} — start it with{" "}
-            <code>npm run backend:dev</code>.
+            <strong style={{ color: STATUS.critical }}>{t("app.backendError")}</strong> {error}
           </div>
         )}
 
         {/* 1 — Grid status */}
         <Panel
-          title="Grid status"
-          subtitle={signal ? `${signal.signal.source}${signal.signal.reservoirPct !== null ? ` · reservoirs at ${signal.signal.reservoirPct.toFixed(1)}%` : ""}` : undefined}
+          title={t("app.panelGridTitle")}
+          subtitle={signal ? `${signal.signal.source}${signal.signal.reservoirPct !== null ? ` · ${t("app.reservoirsAt")} ${signal.signal.reservoirPct.toFixed(1)}%` : ""}` : undefined}
           badge="live"
           badgeDate={signal?.signal.observedDate}
         >
@@ -239,25 +245,25 @@ export function GridDashboard() {
                 {stressIcon}
               </span>
               <div>
-                <div className="text-[11px] uppercase tracking-wide" style={{ color: MUTED }}>Stress</div>
-                <div className="text-[20px] font-semibold uppercase" style={{ color: stressColor }}>{stress}</div>
+                <div className="text-[11px] uppercase tracking-wide" style={{ color: MUTED }}>{t("app.stress")}</div>
+                <div className="text-[20px] font-semibold uppercase" style={{ color: stressColor }}>{stressText}</div>
               </div>
             </div>
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-              <Stat label="Window price" value={signal ? `$${signal.signal.spotUsdPerKwh.toFixed(3)}` : "—"} note="per kWh, 18–21h" />
-              <Stat label="Day average" value={signal ? `$${signal.signal.dayAverageUsdPerKwh.toFixed(3)}` : "—"} note="per kWh, 24h mean" />
+              <Stat label={t("app.statWindowPrice")} value={signal ? `$${signal.signal.spotUsdPerKwh.toFixed(3)}` : "—"} note={t("app.noteWindowPrice")} />
+              <Stat label={t("app.statDayAverage")} value={signal ? `$${signal.signal.dayAverageUsdPerKwh.toFixed(3)}` : "—"} note={t("app.noteDayAverage")} />
               <Stat
-                label="Peak ratio"
+                label={t("app.statPeakRatio")}
                 value={signal ? `${signal.signal.peakRatio.toFixed(2)}×` : "—"}
-                note={`dispatch at ${signal?.thresholds.elevatedPeakRatio ?? 1.4}×`}
+                note={`${t("app.noteDispatchAt")} ${signal?.thresholds.elevatedPeakRatio ?? 1.4}×`}
                 accent={BLUE}
               />
-              <Stat label="Programme pays" value="$0.15" note="per avoided kWh" accent={EMERALD} badge="terms" />
+              <Stat label={t("app.statProgrammePays")} value="$0.15" note={t("app.notePerAvoided")} accent={EMERALD} badge="terms" />
             </div>
           </div>
           {signal && (
             <p className="mt-4 text-[13px]" style={{ color: INK_2 }}>
-              <span style={{ color: MUTED }}>Agent verdict: </span>{signal.decision.reason}
+              <span style={{ color: MUTED }}>{t("app.agentVerdict")} </span>{signal.decision.reason}
             </p>
           )}
         </Panel>
@@ -266,33 +272,33 @@ export function GridDashboard() {
 
           {/* 2 — The site */}
           <Panel
-            title="The site"
-            subtitle={site ? `${site.siteName} · meter ${short(site.device)} · event window ${program?.terms.eventWindowLocal ?? ""}` : undefined}
+            title={t("app.panelSiteTitle")}
+            subtitle={site ? `${site.siteName} · ${t("app.meter")} ${short(site.device)} · ${t("app.eventWindow")} ${program?.terms.eventWindowLocal ?? ""}` : undefined}
             badge="simulated"
           >
             {site && curve ? (
               <>
-                <EventChart baseline={site.baselineCurve} actual={curve.curve} actualLabel={`Measured — ${curve.label.toLowerCase()}`} />
+                <EventChart baseline={site.baselineCurve} actual={curve.curve} actualLabel={scenario === "delivered" ? t("chart.actualLabelDelivered") : t("chart.actualLabelShortfall")} />
                 <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
-                  <Stat label="Committed" value={kwh(site.committedWh)} note="kWh agreed reduction" badge="terms" />
+                  <Stat label={t("app.statCommitted")} value={kwh(site.committedWh)} note={t("app.noteCommitted")} badge="terms" />
                   <Stat
-                    label="Avoided"
+                    label={t("app.statAvoided")}
                     value={result?.settlement ? kwh(result.settlement.avoidedWh) : "—"}
-                    note={result?.settlement ? "kWh verified by the agent" : "run the agent to verify"}
+                    note={result?.settlement ? t("app.noteAvoidedVerified") : t("app.noteAvoidedPending")}
                     accent={EMERALD}
                     badge="simulated"
                   />
-                  <Stat label="Site earned" value={site.earnings ? usd(site.earnings.site) : "—"} note="90% share, all programmes" badge="onchain" />
-                  <Stat label="Treasury" value={site.earnings ? usd(site.earnings.treasury) : "—"} note="10% fee, all programmes" accent={BLUE} badge="onchain" />
+                  <Stat label={t("app.statSiteEarned")} value={site.earnings ? usd(site.earnings.site) : "—"} note={t("app.noteSiteEarned")} badge="onchain" />
+                  <Stat label={t("app.statTreasury")} value={site.earnings ? usd(site.earnings.treasury) : "—"} note={t("app.noteTreasury")} accent={BLUE} badge="onchain" />
                 </div>
               </>
             ) : (
-              <p className="text-[13px]" style={{ color: MUTED }}>Loading meter data…</p>
+              <p className="text-[13px]" style={{ color: MUTED }}>{t("app.loadingMeter")}</p>
             )}
           </Panel>
 
           {/* 3 — Live settlement */}
-          <Panel title="Live settlement" subtitle="The agent senses, verifies, decides and signs. No human signature is involved.">
+          <Panel title={t("app.panelSettleTitle")} subtitle={t("app.panelSettleSubtitle")}>
             <div className="flex flex-wrap items-center gap-2">
               {(["delivered", "shortfall"] as Scenario[]).map((s) => (
                 <button
@@ -306,7 +312,7 @@ export function GridDashboard() {
                     background: scenario === s ? "rgba(59,130,246,0.15)" : "transparent",
                   }}
                 >
-                  {s === "delivered" ? "Site shed load" : "Site missed its commitment"}
+                  {s === "delivered" ? t("app.scenarioDelivered") : t("app.scenarioShortfall")}
                 </button>
               ))}
             </div>
@@ -318,7 +324,7 @@ export function GridDashboard() {
               className="mt-3 w-full rounded-md px-4 py-2.5 text-[14px] font-semibold transition-shadow disabled:opacity-50"
               style={{ background: BLUE, color: "#04121f", boxShadow: running ? undefined : "0 0 20px -4px #3B82F640" }}
             >
-              {running ? "Agent running…" : "Run the settlement agent"}
+              {running ? t("app.btnAgentRunning") : t("app.btnRunAgent")}
             </button>
 
             {shown.length === 0 && !running && (
@@ -337,23 +343,30 @@ export function GridDashboard() {
               </ol>
             )}
 
-            <ol className="mt-4 flex flex-col gap-2">
-              {shown.map((s, i) => (
-                <li key={i} className="flex gap-2.5 text-[13px]">
-                  <span
-                    className="material-symbols-outlined"
-                    style={{ color: s.ok ? EMERALD : STATUS.critical, fontSize: 18, lineHeight: "20px" }}
-                    aria-hidden="true"
-                  >
-                    {s.ok ? "check_circle" : "cancel"}
-                  </span>
-                  <span>
-                    <span className="font-medium capitalize" style={{ color: INK }}>{s.step}</span>
-                    <span style={{ color: MUTED }}> — {s.detail}</span>
-                  </span>
-                </li>
-              ))}
-            </ol>
+            {shown.length > 0 && (
+              <div className="mt-4">
+                <div className="mb-1 text-[10px] font-mono uppercase tracking-wider text-slate-500">
+                  {t("app.agentOutput")}
+                </div>
+                <ol className="flex flex-col gap-2">
+                  {shown.map((s, i) => (
+                    <li key={i} className="flex gap-2.5 text-[13px]">
+                      <span
+                        className="material-symbols-outlined"
+                        style={{ color: s.ok ? EMERALD : STATUS.critical, fontSize: 18, lineHeight: "20px" }}
+                        aria-hidden="true"
+                      >
+                        {s.ok ? "check_circle" : "cancel"}
+                      </span>
+                      <span>
+                        <span className="font-medium capitalize" style={{ color: INK }}>{s.step}</span>
+                        <span style={{ color: MUTED }}> — {s.detail}</span>
+                      </span>
+                    </li>
+                  ))}
+                </ol>
+              </div>
+            )}
 
             {result && !running && (
               <div
@@ -361,15 +374,14 @@ export function GridDashboard() {
                 style={{ borderColor: result.settled ? EMERALD : STATUS.critical }}
               >
                 <div className="font-semibold" style={{ color: result.settled ? EMERALD : STATUS.critical }}>
-                  {result.settled ? "Settled" : "Refused to settle"}
+                  {result.settled ? t("app.settled") : t("app.refused")}
                 </div>
                 <p className="mt-1" style={{ color: INK_2 }}>{result.reason}</p>
 
                 {result.settled && !txHash && (
                   <div className="mt-3 border-t pt-3" style={{ borderColor: HAIRLINE }}>
                     <p className="text-[12px]" style={{ color: MUTED }}>
-                      Both machine signatures are ready. Someone has to pay the gas to put them on chain — that is all a
-                      relayer does. Your signature is not in this transaction.
+                      {t("app.relayNotice")}
                     </p>
                     {!isConnected ? (
                       <div className="mt-2.5"><WalletButton /></div>
@@ -383,7 +395,7 @@ export function GridDashboard() {
                         className="mt-2.5 w-full rounded-md px-4 py-2.5 text-[14px] font-semibold transition-shadow disabled:opacity-50"
                         style={{ background: EMERALD, color: "#03130d", boxShadow: sending ? undefined : "0 0 20px -4px #10B98140" }}
                       >
-                        {sending ? "Confirm in your wallet…" : "Relay the settlement to HSK"}
+                        {sending ? t("app.btnRelayConfirming") : t("app.btnRelay")}
                       </button>
                     )}
                   </div>
@@ -392,22 +404,22 @@ export function GridDashboard() {
                 {txHash && (
                   <div className="mt-3 flex flex-col gap-1 border-t pt-3" style={{ borderColor: HAIRLINE, color: INK_2 }}>
                     <span style={{ color: confirmed ? EMERALD : STATUS.warning }}>
-                      {confirming ? "Waiting for the block…" : confirmed ? "Confirmed on HSK" : "Sent"}
+                      {confirming ? t("app.statusWaitingBlock") : confirmed ? t("app.statusConfirmed") : t("app.statusSent")}
                     </span>
                     {confirmed && (
                       <span>
-                        Paid on chain: <strong>{usd((program?.windows?.[0]?.amount ?? 25) * 0.9)}</strong> to the site,{" "}
-                        <strong style={{ color: BLUE }}>{usd((program?.windows?.[0]?.amount ?? 25) * 0.1)}</strong> to the protocol treasury.
+                        {t("app.paidOnChain")} <strong>{usd((program?.windows?.[0]?.amount ?? 25) * 0.9)}</strong> {t("app.toTheSite")}{" "}
+                        <strong style={{ color: BLUE }}>{usd((program?.windows?.[0]?.amount ?? 25) * 0.1)}</strong> {t("app.toTheTreasury")}
                       </span>
                     )}
                     <a href={`${EXPLORER_URL}/tx/${txHash}`} target="_blank" rel="noreferrer" className="underline underline-offset-2" style={{ color: BLUE }}>
-                      View the transaction on Blockscout
+                      {t("app.viewBlockscout")}
                     </a>
                   </div>
                 )}
                 {result.evidenceHash && (
                   <p className="mt-2 break-all text-[11px]" style={{ color: MUTED, fontFamily: MONO }}>
-                    Evidence hash committed on chain: {result.evidenceHash}
+                    {t("app.evidenceHash")} {result.evidenceHash}
                   </p>
                 )}
               </div>
@@ -416,21 +428,21 @@ export function GridDashboard() {
         </div>
 
         {/* Programme strip */}
-        <Panel title="The programme on HSK" subtitle={program?.connected ? undefined : program?.reason} badge={program?.connected ? "onchain" : undefined}>
+        <Panel title={t("app.panelProgTitle")} subtitle={program?.connected ? undefined : program?.reason} badge={program?.connected ? "onchain" : undefined}>
           {program?.connected ? (
             <>
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-                <Stat label="Budget" value={usd(program.totalBudget ?? 0)} note="funded by the offtaker" />
-                <Stat label="Paid out" value={usd(program.totalPaid ?? 0)} note={`${program.windows?.filter((w) => w.paid).length ?? 0} of 2 windows`} />
-                <Stat label="In escrow" value={usd(program.escrowRemaining ?? 0)} note="locked in the contract" />
-                <Stat label="Split" value={`${(program.siteBps ?? 0) / 100}/${(program.treasuryBps ?? 0) / 100}`} note="site / protocol, enforced on chain" accent={EMERALD} />
+                <Stat label={t("app.statBudget")} value={usd(program.totalBudget ?? 0)} note={t("app.noteBudget")} />
+                <Stat label={t("app.statPaidOut")} value={usd(program.totalPaid ?? 0)} note={`${program.windows?.filter((w) => w.paid).length ?? 0} of 2 windows`} />
+                <Stat label={t("app.statInEscrow")} value={usd(program.escrowRemaining ?? 0)} note={t("app.noteInEscrow")} />
+                <Stat label={t("app.statSplit")} value={`${(program.siteBps ?? 0) / 100}/${(program.treasuryBps ?? 0) / 100}`} note={t("app.noteSplit")} accent={EMERALD} />
               </div>
               <dl className="mt-4 grid gap-x-8 gap-y-1.5 text-[12px] sm:grid-cols-2" style={{ color: MUTED }}>
                 {[
-                  ["Contract", program.address ?? ""],
-                  ["Meter key (signer 1)", program.terms.participants.device],
-                  ["Agent key (signer 2)", program.terms.participants.agent],
-                  ["Treasury", program.terms.participants.treasury],
+                  [t("app.contract"), program.address ?? ""],
+                  [t("app.meterSigner"), program.terms.participants.device],
+                  [t("app.agentSigner"), program.terms.participants.agent],
+                  [t("app.treasury"), program.terms.participants.treasury],
                 ].map(([label, value]) => (
                   <div key={label} className="flex justify-between gap-3 border-b py-1" style={{ borderColor: HAIRLINE }}>
                     <dt>{label}</dt>
@@ -440,30 +452,32 @@ export function GridDashboard() {
               </dl>
               {program.explorerUrl && (
                 <a href={program.explorerUrl} target="_blank" rel="noreferrer" className="mt-3 inline-block text-[12px] underline underline-offset-2" style={{ color: BLUE }}>
-                  Open the programme on Blockscout
+                  {t("app.openProgrammeBlockscout")}
                 </a>
               )}
             </>
           ) : (
             <p className="text-[13px]" style={{ color: MUTED }}>
-              No programme on chain yet. Run <code>node apps/backend/scripts/grid-hsk.mjs</code> from the repository root.
+              {t("app.noProgramme")}
             </p>
           )}
         </Panel>
 
         <footer className="pb-6 text-[11px]" style={{ color: MUTED }}>
           <p>
-            A <em>minga</em> is when a whole community drops what it is doing and works together for one common goal.
-            Baseline method: {program?.terms.baselineMethod ?? "—"}. The agent produces one of the two signatures the
-            contract requires and cannot change the amount.
+            {t("app.footerText")}
           </p>
           <dl className="mt-4 grid gap-2.5 border-t pt-4 sm:grid-cols-2" style={{ borderColor: HAIRLINE }}>
-            {PROVENANCE_ORDER.map((kind) => (
-              <div key={kind} className="flex items-start gap-2.5">
-                <dt><ProvenanceBadge kind={kind} /></dt>
-                <dd className="leading-relaxed">{PROVENANCE[kind].explanation}</dd>
-              </div>
-            ))}
+            {PROVENANCE_ORDER.map((kind) => {
+              const { lang } = useT();
+              const p = getProvenance(kind, lang);
+              return (
+                <div key={kind} className="flex items-start gap-2.5">
+                  <dt><ProvenanceBadge kind={kind} /></dt>
+                  <dd className="leading-relaxed">{p.explanation}</dd>
+                </div>
+              );
+            })}
           </dl>
         </footer>
       </div>

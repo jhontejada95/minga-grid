@@ -7,6 +7,8 @@ export const metadata: Metadata = {
   icons: { icon: "/minga-logo.png" },
 };
 
+import { LanguageProvider } from "@/lib/lang";
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
@@ -23,7 +25,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body className="antialiased">
-        {children}
+        <LanguageProvider>{children}</LanguageProvider>
       </body>
     </html>
   );
