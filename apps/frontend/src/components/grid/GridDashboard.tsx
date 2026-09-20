@@ -87,7 +87,7 @@ function Panel({
   title, subtitle, badge, badgeDate, children,
 }: { title: string; subtitle?: string; badge?: ProvenanceKind; badgeDate?: string; children: React.ReactNode }) {
   return (
-    <section className="rounded-lg border p-5 backdrop-blur-md" style={{ background: SURFACE, borderColor: HAIRLINE }}>
+    <section className="rounded-lg border p-5 backdrop-blur-lg" style={{ background: SURFACE, borderColor: HAIRLINE }}>
       <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
         <h2 className="text-[15px] font-bold" style={{ color: INK, fontFamily: SANS }}>{title}</h2>
         {badge && <ProvenanceBadge kind={badge} />}

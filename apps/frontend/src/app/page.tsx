@@ -78,7 +78,7 @@ function ProvenanceBadge({ kind }: { kind: ProvenanceKind }) {
 function Card({ children, accent, className = "", style }: { children: React.ReactNode; accent?: string; className?: string; style?: React.CSSProperties }) {
   return (
     <div
-      className={`rounded-lg border p-4 backdrop-blur-md ${className}`}
+      className={`rounded-lg border p-4 backdrop-blur-lg ${className}`}
       style={{ background: SURFACE, borderColor: accent ?? BORDER, boxShadow: accent ? glow(accent) : undefined, ...style }}
     >
       {children}
@@ -265,7 +265,7 @@ export default function Landing() {
 
       <div className="relative mx-auto w-full max-w-[1120px] px-5 md:px-8">
 
-        <header className="sticky top-0 z-10 -mx-5 flex items-center justify-between border-b px-5 py-4 backdrop-blur-md md:-mx-8 md:px-8" style={{ borderColor: BORDER, background: `${VOID}cc` }}>
+        <header className="sticky top-0 z-10 -mx-5 flex items-center justify-between border-b px-5 py-4 backdrop-blur-lg md:-mx-8 md:px-8" style={{ borderColor: BORDER, background: `${VOID}cc` }}>
           <span className="text-[15px] font-bold tracking-tight" style={{ fontFamily: SANS }}>
             MINGA <span style={{ color: EMERALD }}>Grid</span>
           </span>
