@@ -78,6 +78,51 @@ a rubber stamp, and a rubber stamp is not worth putting on a chain.
 agent's. Whoever broadcasts the transaction pays gas — their signature is nowhere in it. The demo
 lets you connect your own wallet and relay a settlement you did not authorise, which is the point.
 
+## Live demo walkthrough (Testing via Vercel)
+
+The live application is hosted at **[minga-grid.vercel.app](https://minga-grid.vercel.app)**. No local setup, database, or test tokens are needed to explore the complete flow.
+
+### 1. The Landing (`/`)
+- Open [minga-grid.vercel.app](https://minga-grid.vercel.app).
+- Toggle between **EN / ES** at the top right to switch between English and Colombian Spanish.
+- Review the live XM wholesale telemetry, the 90/10 protocol split mechanism, and the hardware roadmap.
+- Click **"Open the app"** to enter the control room dashboard (`/app`).
+
+### 2. Inspect Grid Status
+- **Panel 1 (Grid status):** Displays live Colombian wholesale electricity prices fetched directly from XM (`https://servapibi.xm.com.co`), comparing the evening window against the 24-hour mean.
+- The agent assesses grid stress deterministically (1.4× elevated, 1.8× critical) and prints its dispatch verdict.
+
+### 3. Inspect The Site & Baseline
+- **Panel 2 (The site):** Features a cold-storage warehouse committing to shed 500 kWh during the 18:00–21:00 peak.
+- Inspect the interactive SVG chart:
+  - **Dashed line:** 5-day ordinary evening baseline counterfactual.
+  - **Solid blue line:** Measured consumption.
+  - **Emerald band:** Avoided energy—the exact kilowatt-hours that get paid.
+- Click *"Show the readings as a table"* to inspect individual 15-minute interval measurements and timestamps.
+
+### 4. Run the Settlement Agent
+- **Panel 3 (Live settlement):**
+  - Choose a scenario:
+    - **Site shed load (`delivered`):** The site curtailed load and exceeded its commitment (608.9 kWh avoided vs 500 kWh committed).
+    - **Site missed its commitment (`shortfall`):** The site curtailed insufficiently (~152 kWh avoided).
+  - Click **"Run the settlement agent"**:
+    - The 6-step agent verification pipeline executes sequentially (*sense → verify signatures → baseline reconstruction → measurement → decision → EIP-712 signing*).
+    - **The refusal path:** When selecting *shortfall*, the agent **refuses to settle**. An agent that always approves is a rubber stamp; here, missed commitments produce zero payout and sign nothing.
+
+### 5. Relay on HSK Chain (Optional Live Settlement)
+- In the *delivered* scenario, both machine signatures are produced.
+- Connect any browser wallet (e.g. MetaMask) on **HSK Testnet**:
+  - Network: **HSKChain Testnet**
+  - Chain ID: `133`
+  - RPC: `https://testnet.hsk.xyz`
+  - Currency: `HSK`
+  - Faucet: [hskchain.net/faucet](https://hskchain.net/faucet)
+- Click **"Relay the settlement to HSK"**:
+  - Your wallet broadcasts the `release()` call.
+  - **You act purely as a relayer paying gas.** Your wallet's signature is nowhere in the authorization—the contract strictly validates the meter's and agent's EIP-712 signatures.
+  - Once mined, the 90/10 split executes atomically on-chain (67.50 mUSD to the site, 7.50 mUSD to the protocol treasury).
+  - Click the transaction link to view the token transfer on Blockscout.
+
 ## How it makes money
 
 | Flow | Who pays | How much |
