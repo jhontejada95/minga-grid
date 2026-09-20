@@ -11,12 +11,13 @@ import { useAccount, useConnect, useDisconnect, useSwitchChain } from "wagmi";
 import { CHAIN_ID } from "@/lib/config";
 import { short } from "@/lib/grid";
 
-const INK = "#ffffff";
-const INK_2 = "#c3c2b7";
-const MUTED = "#898781";
-const HAIRLINE = "#2c2c2a";
-const BLUE = "#3987e5";
-const WARN = "#fab219";
+const INK = "#F8FAFC";
+const INK_2 = "#94A3B8";
+const MUTED = "#64748B";
+const HAIRLINE = "#1E293B";
+const BLUE = "#3B82F6";
+const WARN = "#F59E0B";
+const MONO = "'JetBrains Mono', ui-monospace, monospace";
 
 export function WalletButton() {
   const { address, isConnected, chainId } = useAccount();
@@ -62,7 +63,7 @@ export function WalletButton() {
           Switch to HSK testnet
         </button>
       )}
-      <span className="rounded-md border px-3 py-1.5 font-mono text-[13px]" style={{ borderColor: HAIRLINE, color: INK }}>
+      <span className="rounded-md border px-3 py-1.5 text-[13px]" style={{ borderColor: HAIRLINE, color: INK, fontFamily: MONO }}>
         {short(address!)}
       </span>
       <button type="button" onClick={() => disconnect()} className="text-[12px] underline underline-offset-2" style={{ color: MUTED }}>

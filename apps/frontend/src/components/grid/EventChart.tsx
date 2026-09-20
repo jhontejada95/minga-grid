@@ -7,19 +7,20 @@
  * message: a filled band, directly labelled with the energy it represents. The baseline is a
  * reference, not a rival series, so it is a dashed neutral line rather than a second hue.
  *
- * Palette: categorical slot 1 (blue) for what actually happened, slot 3 (aqua) for the avoided
- * band. Validated for colour-vision deficiency against the dark surface (normal ΔE 20.9,
- * worst CVD ΔE 19.6).
+ * Palette: protocol blue for what actually happened, emerald for the avoided band. Emerald and
+ * cyan are NOT used together here on purpose — validated normal ΔE 12.5 for that pair, which
+ * fails. Emerald + protocol blue validates at normal ΔE 26.5, worst CVD ΔE 25.2.
  */
 import { useId, useMemo, useState } from "react";
 import { cotTime, kwh, type CurvePoint } from "@/lib/grid";
 
-const BLUE = "#3987e5";
-const AQUA = "#199e70";
-const MUTED = "#898781";
-const GRID = "#2c2c2a";
-const INK = "#ffffff";
-const INK_2 = "#c3c2b7";
+const BLUE = "#3B82F6";
+const EMERALD = "#10B981";
+const MUTED = "#64748B";
+const GRID = "#1E293B";
+const INK = "#F8FAFC";
+const INK_2 = "#94A3B8";
+const MONO = "'JetBrains Mono', ui-monospace, monospace";
 
 const W = 720;
 const H = 300;
@@ -80,7 +81,7 @@ export function EventChart({
         </span>
         <span className="inline-flex items-center gap-2">
           <svg width="14" height="10" className="shrink-0" aria-hidden="true">
-            <rect width="14" height="10" rx="2" fill={AQUA} opacity="0.45" />
+            <rect width="14" height="10" rx="2" fill={EMERALD} opacity="0.45" />
           </svg>
           Avoided energy — what gets paid
         </span>
@@ -109,31 +110,31 @@ export function EventChart({
         {ticks.map((t) => (
           <g key={t.wh}>
             <line x1={PAD.left} y1={t.y} x2={W - PAD.right} y2={t.y} stroke={GRID} strokeWidth="1" />
-            <text x={PAD.left - 8} y={t.y + 4} textAnchor="end" fontSize="11" fill={MUTED}>
+            <text x={PAD.left - 8} y={t.y + 4} textAnchor="end" fontSize="11" fontFamily={MONO} fill={MUTED}>
               {(t.wh / 1000).toFixed(1)}
             </text>
           </g>
         ))}
-        <text x={PAD.left - 8} y={PAD.top - 10} textAnchor="end" fontSize="10" fill={MUTED}>
+        <text x={PAD.left - 8} y={PAD.top - 10} textAnchor="end" fontSize="10" fontFamily={MONO} fill={MUTED}>
           kWh
         </text>
 
         {xs.map((i) =>
           i % 4 === 0 || i === xs.length - 1 ? (
-            <text key={i} x={xOf(i)} y={H - 12} textAnchor="middle" fontSize="11" fill={MUTED}>
+            <text key={i} x={xOf(i)} y={H - 12} textAnchor="middle" fontSize="11" fontFamily={MONO} fill={MUTED}>
               {cotTime(baseline[i]?.t ?? 0)}
             </text>
           ) : null,
         )}
 
         <g clipPath={`url(#${clipId})`}>
-          <polygon points={band} fill={AQUA} opacity="0.4" />
+          <polygon points={band} fill={EMERALD} opacity="0.4" />
           <polyline points={line(baseline)} fill="none" stroke={MUTED} strokeWidth="2" strokeDasharray="5 4" />
           <polyline points={line(actual)} fill="none" stroke={BLUE} strokeWidth="2" strokeLinejoin="round" />
         </g>
 
         {avoidedWh > 0 && (
-          <text x={labelX} y={labelY + 4} textAnchor="middle" fontSize="13" fontWeight="600" fill={INK}>
+          <text x={labelX} y={labelY + 4} textAnchor="middle" fontSize="13" fontWeight="600" fontFamily={MONO} fill={INK}>
             {kwh(avoidedWh)} kWh avoided
           </text>
         )}
@@ -141,17 +142,17 @@ export function EventChart({
         {hover !== null && (
           <g pointerEvents="none">
             <line x1={xOf(hover)} y1={PAD.top} x2={xOf(hover)} y2={H - PAD.bottom} stroke={INK_2} strokeWidth="1" opacity="0.5" />
-            <circle cx={xOf(hover)} cy={yOf(baseline[hover]?.wh ?? 0)} r="5" fill={MUTED} stroke="#1a1a19" strokeWidth="2" />
-            <circle cx={xOf(hover)} cy={yOf(actual[hover]?.wh ?? 0)} r="5" fill={BLUE} stroke="#1a1a19" strokeWidth="2" />
+            <circle cx={xOf(hover)} cy={yOf(baseline[hover]?.wh ?? 0)} r="5" fill={MUTED} stroke="#090D14" strokeWidth="2" />
+            <circle cx={xOf(hover)} cy={yOf(actual[hover]?.wh ?? 0)} r="5" fill={BLUE} stroke="#090D14" strokeWidth="2" />
             <g transform={`translate(${Math.min(xOf(hover) + 10, W - 190)}, ${PAD.top + 6})`}>
-              <rect width="180" height="66" rx="6" fill="#111110" stroke={GRID} />
-              <text x="10" y="20" fontSize="11" fill={MUTED}>
+              <rect width="180" height="66" rx="6" fill="#0F172A" stroke={GRID} />
+              <text x="10" y="20" fontSize="11" fontFamily={MONO} fill={MUTED}>
                 {cotTime(baseline[hover]?.t ?? 0)} COT
               </text>
-              <text x="10" y="38" fontSize="12" fill={INK_2}>
+              <text x="10" y="38" fontSize="12" fontFamily={MONO} fill={INK_2}>
                 Baseline {kwh(baseline[hover]?.wh ?? 0, 2)} kWh
               </text>
-              <text x="10" y="56" fontSize="12" fill={INK}>
+              <text x="10" y="56" fontSize="12" fontFamily={MONO} fill={INK}>
                 Measured {kwh(actual[hover]?.wh ?? 0, 2)} kWh
               </text>
             </g>
@@ -179,7 +180,7 @@ export function EventChart({
                   <th className="px-3 py-1.5 font-medium">Avoided kWh</th>
                 </tr>
               </thead>
-              <tbody style={{ color: INK_2 }}>
+              <tbody style={{ color: INK_2, fontFamily: MONO }}>
                 {xs.map((i) => (
                   <tr key={i} className="border-t" style={{ borderColor: GRID }}>
                     <td className="px-3 py-1">{cotTime(baseline[i]?.t ?? 0)}</td>

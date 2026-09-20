@@ -8,7 +8,7 @@
  * the agent deciding and the chain paying.
  *
  * Dark surface on purpose: this is a control room, and the chart reads better on it. Colours
- * come from the validated categorical palette (slot 1 blue, slot 3 aqua) and the fixed status
+ * come from the validated categorical palette (protocol blue, emerald) and the fixed status
  * palette; every status carries an icon and a word, never colour alone.
  */
 import { useCallback, useEffect, useState } from "react";
@@ -23,15 +23,17 @@ import {
   type AgentStep, type GridProgramResponse, type GridSignalResponse, type GridSiteResponse, type SettleResponse,
 } from "@/lib/grid";
 
-const SURFACE = "#1a1a19";
-const PLANE = "#0d0d0d";
-const INK = "#ffffff";
-const INK_2 = "#c3c2b7";
-const MUTED = "#898781";
-const HAIRLINE = "#2c2c2a";
-const BLUE = "#3987e5";
-const AQUA = "#199e70";
-const STATUS = { good: "#0ca30c", warning: "#fab219", critical: "#d03b3b" } as const;
+const SURFACE = "rgba(15,23,42,0.8)";
+const PLANE = "#090D14";
+const INK = "#F8FAFC";
+const INK_2 = "#94A3B8";
+const MUTED = "#64748B";
+const HAIRLINE = "#1E293B";
+const BLUE = "#3B82F6";
+const EMERALD = "#10B981";
+const STATUS = { good: "#10B981", warning: "#F59E0B", critical: "#F43F5E" } as const;
+const SANS = "'Plus Jakarta Sans', 'Inter', system-ui, sans-serif";
+const MONO = "'JetBrains Mono', ui-monospace, monospace";
 
 type Scenario = "delivered" | "shortfall";
 
@@ -47,9 +49,9 @@ const PIPELINE: [string, string][] = [
 
 function Panel({ title, subtitle, children }: { title: string; subtitle?: string; children: React.ReactNode }) {
   return (
-    <section className="rounded-lg border p-5" style={{ background: SURFACE, borderColor: HAIRLINE }}>
-      <h2 className="text-[15px] font-semibold" style={{ color: INK }}>{title}</h2>
-      {subtitle && <p className="mb-4 mt-1 text-[12px]" style={{ color: MUTED }}>{subtitle}</p>}
+    <section className="rounded-lg border p-5 backdrop-blur-md" style={{ background: SURFACE, borderColor: HAIRLINE }}>
+      <h2 className="text-[15px] font-bold" style={{ color: INK, fontFamily: SANS }}>{title}</h2>
+      {subtitle && <p className="mb-4 mt-1 text-[12px]" style={{ color: MUTED, fontFamily: MONO }}>{subtitle}</p>}
       {!subtitle && <div className="mb-4" />}
       {children}
     </section>
@@ -58,9 +60,9 @@ function Panel({ title, subtitle, children }: { title: string; subtitle?: string
 
 function Stat({ label, value, note, accent }: { label: string; value: string; note?: string; accent?: string }) {
   return (
-    <div className="rounded-md border px-3 py-2.5" style={{ borderColor: HAIRLINE }}>
-      <div className="text-[11px] uppercase tracking-wide" style={{ color: MUTED }}>{label}</div>
-      <div className="mt-1 whitespace-nowrap text-[22px] font-semibold tabular-nums" style={{ color: accent ?? INK }}>{value}</div>
+    <div className="rounded-md border px-3 py-2.5" style={{ borderColor: accent ?? HAIRLINE }}>
+      <div className="text-[11px] uppercase tracking-wide" style={{ color: MUTED, fontFamily: MONO }}>{label}</div>
+      <div className="mt-1 whitespace-nowrap text-[22px] font-bold tabular-nums" style={{ color: accent ?? INK, fontFamily: MONO }}>{value}</div>
       {note && <div className="mt-0.5 text-[11px]" style={{ color: MUTED }}>{note}</div>}
     </div>
   );
@@ -159,13 +161,15 @@ export function GridDashboard() {
 
         <header>
           <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-            <h1 className="text-[26px] font-bold tracking-tight">MINGA Grid</h1>
+            <h1 className="text-[26px] font-extrabold tracking-tight" style={{ fontFamily: SANS }}>
+              MINGA <span style={{ color: EMERALD }}>Grid</span>
+            </h1>
             <p className="text-[14px]" style={{ color: INK_2 }}>
               Get paid for the electricity you don’t use when the grid is about to fall.
             </p>
           </div>
           <div className="mt-2 flex flex-wrap items-center justify-between gap-3">
-            <p className="text-[12px]" style={{ color: MUTED }}>
+            <p className="text-[12px]" style={{ color: MUTED, fontFamily: MONO }}>
               HSK testnet · no monetary value · live grid price from XM · meter readings are synthetic and signed by a device key
             </p>
             <WalletButton />
@@ -203,7 +207,7 @@ export function GridDashboard() {
                 note={`dispatch at ${signal?.thresholds.elevatedPeakRatio ?? 1.4}×`}
                 accent={BLUE}
               />
-              <Stat label="Programme pays" value="$0.15" note="per avoided kWh" accent={AQUA} />
+              <Stat label="Programme pays" value="$0.15" note="per avoided kWh" accent={EMERALD} />
             </div>
           </div>
           {signal && (
@@ -229,7 +233,7 @@ export function GridDashboard() {
                     label="Avoided"
                     value={result?.settlement ? kwh(result.settlement.avoidedWh) : "—"}
                     note={result?.settlement ? "kWh verified by the agent" : "run the agent to verify"}
-                    accent={AQUA}
+                    accent={EMERALD}
                   />
                   <Stat label="Site earned" value={site.earnings ? usd(site.earnings.site) : "—"} note="90% share, all programmes" />
                   <Stat label="Treasury" value={site.earnings ? usd(site.earnings.treasury) : "—"} note="10% fee, all programmes" accent={BLUE} />
@@ -252,7 +256,7 @@ export function GridDashboard() {
                   style={{
                     borderColor: scenario === s ? BLUE : HAIRLINE,
                     color: scenario === s ? INK : INK_2,
-                    background: scenario === s ? "#12233a" : "transparent",
+                    background: scenario === s ? "rgba(59,130,246,0.15)" : "transparent",
                   }}
                 >
                   {s === "delivered" ? "Site shed load" : "Site missed its commitment"}
@@ -264,8 +268,8 @@ export function GridDashboard() {
               type="button"
               onClick={() => void run()}
               disabled={running}
-              className="mt-3 w-full rounded-md px-4 py-2.5 text-[14px] font-semibold disabled:opacity-50"
-              style={{ background: BLUE, color: "#04121f" }}
+              className="mt-3 w-full rounded-md px-4 py-2.5 text-[14px] font-semibold transition-shadow disabled:opacity-50"
+              style={{ background: BLUE, color: "#04121f", boxShadow: running ? undefined : "0 0 20px -4px #3B82F640" }}
             >
               {running ? "Agent running…" : "Run the settlement agent"}
             </button>
@@ -291,7 +295,7 @@ export function GridDashboard() {
                 <li key={i} className="flex gap-2.5 text-[13px]">
                   <span
                     className="material-symbols-outlined"
-                    style={{ color: s.ok ? AQUA : STATUS.critical, fontSize: 18, lineHeight: "20px" }}
+                    style={{ color: s.ok ? EMERALD : STATUS.critical, fontSize: 18, lineHeight: "20px" }}
                     aria-hidden="true"
                   >
                     {s.ok ? "check_circle" : "cancel"}
@@ -307,9 +311,9 @@ export function GridDashboard() {
             {result && !running && (
               <div
                 className="mt-4 rounded-md border p-3.5 text-[13px]"
-                style={{ borderColor: result.settled ? AQUA : STATUS.critical }}
+                style={{ borderColor: result.settled ? EMERALD : STATUS.critical }}
               >
-                <div className="font-semibold" style={{ color: result.settled ? AQUA : STATUS.critical }}>
+                <div className="font-semibold" style={{ color: result.settled ? EMERALD : STATUS.critical }}>
                   {result.settled ? "Settled" : "Refused to settle"}
                 </div>
                 <p className="mt-1" style={{ color: INK_2 }}>{result.reason}</p>
@@ -329,8 +333,8 @@ export function GridDashboard() {
                         type="button"
                         onClick={() => void relay()}
                         disabled={sending}
-                        className="mt-2.5 w-full rounded-md px-4 py-2.5 text-[14px] font-semibold disabled:opacity-50"
-                        style={{ background: AQUA, color: "#03130d" }}
+                        className="mt-2.5 w-full rounded-md px-4 py-2.5 text-[14px] font-semibold transition-shadow disabled:opacity-50"
+                        style={{ background: EMERALD, color: "#03130d", boxShadow: sending ? undefined : "0 0 20px -4px #10B98140" }}
                       >
                         {sending ? "Confirm in your wallet…" : "Relay the settlement to HSK"}
                       </button>
@@ -340,7 +344,7 @@ export function GridDashboard() {
 
                 {txHash && (
                   <div className="mt-3 flex flex-col gap-1 border-t pt-3" style={{ borderColor: HAIRLINE, color: INK_2 }}>
-                    <span style={{ color: confirmed ? AQUA : STATUS.warning }}>
+                    <span style={{ color: confirmed ? EMERALD : STATUS.warning }}>
                       {confirming ? "Waiting for the block…" : confirmed ? "Confirmed on HSK" : "Sent"}
                     </span>
                     {confirmed && (
@@ -355,7 +359,7 @@ export function GridDashboard() {
                   </div>
                 )}
                 {result.evidenceHash && (
-                  <p className="mt-2 break-all text-[11px]" style={{ color: MUTED }}>
+                  <p className="mt-2 break-all text-[11px]" style={{ color: MUTED, fontFamily: MONO }}>
                     Evidence hash committed on chain: {result.evidenceHash}
                   </p>
                 )}
@@ -372,7 +376,7 @@ export function GridDashboard() {
                 <Stat label="Budget" value={usd(program.totalBudget ?? 0)} note="funded by the offtaker" />
                 <Stat label="Paid out" value={usd(program.totalPaid ?? 0)} note={`${program.windows?.filter((w) => w.paid).length ?? 0} of 2 windows`} />
                 <Stat label="In escrow" value={usd(program.escrowRemaining ?? 0)} note="locked in the contract" />
-                <Stat label="Split" value={`${(program.siteBps ?? 0) / 100}/${(program.treasuryBps ?? 0) / 100}`} note="site / protocol, enforced on chain" accent={AQUA} />
+                <Stat label="Split" value={`${(program.siteBps ?? 0) / 100}/${(program.treasuryBps ?? 0) / 100}`} note="site / protocol, enforced on chain" accent={EMERALD} />
               </div>
               <dl className="mt-4 grid gap-x-8 gap-y-1.5 text-[12px] sm:grid-cols-2" style={{ color: MUTED }}>
                 {[
@@ -383,7 +387,7 @@ export function GridDashboard() {
                 ].map(([label, value]) => (
                   <div key={label} className="flex justify-between gap-3 border-b py-1" style={{ borderColor: HAIRLINE }}>
                     <dt>{label}</dt>
-                    <dd className="font-mono" style={{ color: INK_2 }}>{short(value)}</dd>
+                    <dd style={{ color: INK_2, fontFamily: MONO }}>{short(value)}</dd>
                   </div>
                 ))}
               </dl>
