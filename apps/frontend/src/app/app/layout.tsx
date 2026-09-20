@@ -1,12 +1,6 @@
-import { SiteHeader } from "@/components/SiteHeader";
-import { Footer } from "@/components/Footer";
+import { Providers } from "@/components/Providers";
 
+/** Only the app needs wallet context. The landing stays static. */
 export default function AppLayout({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="bg-background">
-      <SiteHeader variant="app" />
-      <main className="min-h-screen w-full bg-background pt-[124px]">{children}</main>
-      <Footer />
-    </div>
-  );
+  return <Providers>{children}</Providers>;
 }

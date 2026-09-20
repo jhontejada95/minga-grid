@@ -20,8 +20,8 @@ export const wagmiConfig = createConfig({
             projectId: WALLETCONNECT_PROJECT_ID,
             showQrModal: true,
             metadata: {
-              name: "MINGA Nature",
-              description: "Clear agreements for conservation funding (testnet demonstration)",
+              name: "MINGA Grid",
+              description: "Get paid for the electricity you do not use when the grid is about to fall (HSK testnet demonstration)",
               url: typeof window !== "undefined" ? window.location.origin : "http://localhost:3000",
               icons: [],
             },

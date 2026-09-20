@@ -1,13 +1,23 @@
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import dotenv from "dotenv";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
-// The single root .env is shared with the backend. Only NEXT_PUBLIC_* variables are ever exposed to the browser bundle.
-// MINGA_ENV_FILE / NEXT_DIST_DIR let the local stack (anvil) build side by side with the HSK build without touching it.
-const envFile = process.env.MINGA_ENV_FILE ? path.resolve(process.env.MINGA_ENV_FILE) : path.resolve(here, "../../.env");
-const parsed = dotenv.config({ path: envFile }).parsed ?? {};
-const publicEnv = Object.fromEntries(Object.entries(parsed).filter(([k]) => k.startsWith("NEXT_PUBLIC_")));
+
+/**
+ * Locally the single root .env is shared with the backend, so it is loaded here. On a hosting
+ * platform that file does not exist and the variables come from the environment instead, so the
+ * load is optional and never fails the build. Only NEXT_PUBLIC_* ever reaches the browser bundle.
+ * MINGA_ENV_FILE / NEXT_DIST_DIR let the local anvil stack build beside the HSK build.
+ */
+let publicEnv = {};
+try {
+  const { default: dotenv } = await import("dotenv");
+  const envFile = process.env.MINGA_ENV_FILE ? path.resolve(process.env.MINGA_ENV_FILE) : path.resolve(here, "../../.env");
+  const parsed = dotenv.config({ path: envFile }).parsed ?? {};
+  publicEnv = Object.fromEntries(Object.entries(parsed).filter(([k]) => k.startsWith("NEXT_PUBLIC_")));
+} catch {
+  // No dotenv or no .env file: the platform supplies the variables directly.
+}
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {

@@ -1,10 +1,9 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { Providers } from "@/components/Providers";
 
 export const metadata: Metadata = {
-  title: "MINGA Nature",
-  description: "Clear agreements for conservation funding, on HSK Chain testnet.",
+  title: "MINGA Grid",
+  description: "Get paid in stablecoin for the electricity you do not use when the grid is about to fall.",
   icons: { icon: "/minga-logo.png" },
 };
 
@@ -23,8 +22,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap"
         />
       </head>
-      <body className="bg-background font-body-md text-body-md text-on-surface antialiased">
-        <Providers>{children}</Providers>
+      <body className="antialiased">
+        {children}
       </body>
     </html>
   );

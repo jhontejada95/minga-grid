@@ -22,6 +22,7 @@ import { findReview, listReviews, requestReview } from "./review.js";
 import { listResearchRuns } from "./mpp.js";
 import { getApprovalState, prepareApprovalPayload, submitApprovalSignature } from "./approvals.js";
 import { getActivity } from "./indexer.js";
+import { registerGridRoutes } from "./grid.js";
 import { buildOpenApi } from "./openapi.js";
 
 export const SESSION_COOKIE = "minga_session";
@@ -162,6 +163,9 @@ export async function buildApp(ctx: AppContext): Promise<FastifyInstance> {
   }));
 
   app.get("/api/v1/openapi.json", async () => buildOpenApi());
+
+  // MINGA Grid demand-response surface. Kept separate from the inherited agreement routes.
+  registerGridRoutes(app, ctx);
 
   // ------------------------------------------------------------ auth
   app.post("/api/v1/auth/challenge", async (req) => {

@@ -37,6 +37,11 @@ export const ROUTE_DOCS: RouteDoc[] = [
   { method: "post", path: "/api/v1/agreements/:address/milestones/:id/approval-payloads", summary: "Prepare or return the shared EIP-712 payload for the current nonce and evidence version. Times come from chain time.", access: "signer", tag: "Approvals", body: { evidenceHash: hash32 } },
   { method: "post", path: "/api/v1/agreements/:address/milestones/:id/approval-signatures", summary: "Store a signature after proving it valid for the stored payload, the authenticated wallet and its on-chain role.", access: "signer", tag: "Approvals", body: { payloadHash: hash32, signature: { type: "string" } } },
   { method: "get", path: "/api/v1/agreements/:address/milestones/:id/approvals", summary: "Current payload, signatures, stale history and, when executable, the exact release() arguments.", access: "participant", tag: "Approvals" },
+
+  { method: "get", path: "/api/v1/grid/signal", summary: "Current grid stress signal and the agent's deterministic dispatch verdict, with the thresholds it applied.", access: "public", tag: "Grid" },
+  { method: "get", path: "/api/v1/grid/program", summary: "The demand-response program on chain: budget, escrow, the 90/10 split and the receipt for each settled event window.", access: "public", tag: "Grid" },
+  { method: "get", path: "/api/v1/grid/site", summary: "The site's baseline curve, both event scenarios and what the site and the treasury have been paid so far.", access: "public", tag: "Grid" },
+  { method: "post", path: "/api/v1/grid/settle", summary: "Run one settlement pass over the signed meter batch. Returns the agent's step log; with submit=true it also broadcasts release(). The agent refuses to sign when the readings fail verification or the site missed its commitment.", access: "public", tag: "Grid", body: { scenario: { type: "string", enum: ["delivered", "shortfall"] }, submit: { type: "boolean" } } },
 ];
 
 const toOpenApiPath = (p: string) => p.replace(/:([A-Za-z]+)/g, "{$1}");
@@ -88,7 +93,7 @@ export function buildOpenApi() {
         "Standalone backend for evidence, review, sign-in and event indexing. It cannot move funds or sign for anyone: milestone payments happen only through wallet transactions on HSK. Token amounts are decimal strings in base units; timestamps are UTC ISO 8601.",
     },
     servers: [{ url: "http://localhost:4000" }],
-    tags: ["Meta", "Auth", "Agreements", "Evidence", "Review", "Approvals"].map((name) => ({ name })),
+    tags: ["Meta", "Auth", "Agreements", "Evidence", "Review", "Approvals", "Grid"].map((name) => ({ name })),
     components: {
       securitySchemes: { cookieAuth: { type: "apiKey", in: "cookie", name: "minga_session" } },
       schemas: {

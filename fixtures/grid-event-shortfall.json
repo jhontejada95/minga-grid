@@ -1,0 +1,141 @@
+{
+  "siteId": "0x950b68c1a0cc414d1dcbdb9a7db845bc8f2f74a563beb3cb586f4cc774ec526c",
+  "device": "0x088604357682c799a184c31aa2513159c2b92Cd2",
+  "windowStart": 1789858800,
+  "windowEnd": 1789869600,
+  "intervalSeconds": 900,
+  "readings": [
+    {
+      "reading": {
+        "siteId": "0x950b68c1a0cc414d1dcbdb9a7db845bc8f2f74a563beb3cb586f4cc774ec526c",
+        "device": "0x088604357682c799a184c31aa2513159c2b92Cd2",
+        "periodStart": 1789858800,
+        "periodEnd": 1789859700,
+        "wh": 85757,
+        "nonce": 105
+      },
+      "signature": "0x93518483bc6c2b25b74d192d868d47dfac158ce3d8a794e658a215f45af8a8ef7fc037496a8aa0138ca803380818573fd7ce9c0ccb58a1576bb2274254dd88051b"
+    },
+    {
+      "reading": {
+        "siteId": "0x950b68c1a0cc414d1dcbdb9a7db845bc8f2f74a563beb3cb586f4cc774ec526c",
+        "device": "0x088604357682c799a184c31aa2513159c2b92Cd2",
+        "periodStart": 1789859700,
+        "periodEnd": 1789860600,
+        "wh": 87197,
+        "nonce": 106
+      },
+      "signature": "0x801f2c7ccb564f8ddfc495ae7eb7fa82d06e30f47afcdf32c30fd218fb0ec4912fcc7004ea9230b6b127bc7c60508db49ed9a3e75ef6c96ae9820c98d83655821c"
+    },
+    {
+      "reading": {
+        "siteId": "0x950b68c1a0cc414d1dcbdb9a7db845bc8f2f74a563beb3cb586f4cc774ec526c",
+        "device": "0x088604357682c799a184c31aa2513159c2b92Cd2",
+        "periodStart": 1789860600,
+        "periodEnd": 1789861500,
+        "wh": 88948,
+        "nonce": 107
+      },
+      "signature": "0x17d0b9b3fdcc3eece09ce6c03c84ec5bd9224b7c096140748df3a6702f1d236c6d878c49f0df1c53aff82a7898efba627d62d04c332d1d2dd9137f9d7f7525561c"
+    },
+    {
+      "reading": {
+        "siteId": "0x950b68c1a0cc414d1dcbdb9a7db845bc8f2f74a563beb3cb586f4cc774ec526c",
+        "device": "0x088604357682c799a184c31aa2513159c2b92Cd2",
+        "periodStart": 1789861500,
+        "periodEnd": 1789862400,
+        "wh": 86604,
+        "nonce": 108
+      },
+      "signature": "0xb6734aefe50e3cfa10549e024d97841bfdad651be89b0b42cc9e96e675488bcf764508f829c796270733b7b32e8fbd4645db7c733e57aed076c28eff4d1423e01b"
+    },
+    {
+      "reading": {
+        "siteId": "0x950b68c1a0cc414d1dcbdb9a7db845bc8f2f74a563beb3cb586f4cc774ec526c",
+        "device": "0x088604357682c799a184c31aa2513159c2b92Cd2",
+        "periodStart": 1789862400,
+        "periodEnd": 1789863300,
+        "wh": 74531,
+        "nonce": 109
+      },
+      "signature": "0x597c9c3c209cb69235e48f007cba52c9919e3662f13dc5e363136322e6693f7e51664d0bcc4669c9964f3f7f4f8e555500ec82968901a4867a44d29fe85001fd1c"
+    },
+    {
+      "reading": {
+        "siteId": "0x950b68c1a0cc414d1dcbdb9a7db845bc8f2f74a563beb3cb586f4cc774ec526c",
+        "device": "0x088604357682c799a184c31aa2513159c2b92Cd2",
+        "periodStart": 1789863300,
+        "periodEnd": 1789864200,
+        "wh": 73995,
+        "nonce": 110
+      },
+      "signature": "0x04892087162d041f05f62b81af39d8d851aab99d59eebd72ab5a63eab99ab01d4a8b407fd77bd1031562513477c46824b387546a2b2518001a398893ea2b0a341c"
+    },
+    {
+      "reading": {
+        "siteId": "0x950b68c1a0cc414d1dcbdb9a7db845bc8f2f74a563beb3cb586f4cc774ec526c",
+        "device": "0x088604357682c799a184c31aa2513159c2b92Cd2",
+        "periodStart": 1789864200,
+        "periodEnd": 1789865100,
+        "wh": 74373,
+        "nonce": 111
+      },
+      "signature": "0xaef6a9e73ef98858e2a28b07504f449d061720f3e8958e78675eb3ca16a5e2f11c3a277c01923763dc0992b087e2c89e01d68c7eab205a457120633cecffaaaa1c"
+    },
+    {
+      "reading": {
+        "siteId": "0x950b68c1a0cc414d1dcbdb9a7db845bc8f2f74a563beb3cb586f4cc774ec526c",
+        "device": "0x088604357682c799a184c31aa2513159c2b92Cd2",
+        "periodStart": 1789865100,
+        "periodEnd": 1789866000,
+        "wh": 80083,
+        "nonce": 112
+      },
+      "signature": "0x9fd0f42eab7170d7e8e8e6e9e10acbad214a633faf15d83a5eb5a4e77ae752b31b778f9a3ba7653af0af536f3be3dacd6726568bf4cc8b7e15c80f8bca62837f1b"
+    },
+    {
+      "reading": {
+        "siteId": "0x950b68c1a0cc414d1dcbdb9a7db845bc8f2f74a563beb3cb586f4cc774ec526c",
+        "device": "0x088604357682c799a184c31aa2513159c2b92Cd2",
+        "periodStart": 1789866000,
+        "periodEnd": 1789866900,
+        "wh": 59366,
+        "nonce": 113
+      },
+      "signature": "0x3867c224f75fb573f75aa166439f59a5c11935503ca174e0ccc7cbb50a086d9b22c5f306b89f6952106ff1cb6f474c5c8d9b7c5db5ef92f27de169aa8bb586591c"
+    },
+    {
+      "reading": {
+        "siteId": "0x950b68c1a0cc414d1dcbdb9a7db845bc8f2f74a563beb3cb586f4cc774ec526c",
+        "device": "0x088604357682c799a184c31aa2513159c2b92Cd2",
+        "periodStart": 1789866900,
+        "periodEnd": 1789867800,
+        "wh": 57540,
+        "nonce": 114
+      },
+      "signature": "0x16154bb9ba22fda9595bc09c76f05be4a5ac5ec56220f2c6651b528f1b13434364949869e2619dd7836651227a9d5c6811b0c0e976136f080fe86a07a4a034ba1c"
+    },
+    {
+      "reading": {
+        "siteId": "0x950b68c1a0cc414d1dcbdb9a7db845bc8f2f74a563beb3cb586f4cc774ec526c",
+        "device": "0x088604357682c799a184c31aa2513159c2b92Cd2",
+        "periodStart": 1789867800,
+        "periodEnd": 1789868700,
+        "wh": 57057,
+        "nonce": 115
+      },
+      "signature": "0xa0092dae549a0cdccb27b9540f70741d076f24f85c8814f913dc1f2b2b742bf17975cc58d84b33d01313f27931ff7f102b91cc9f1f214fc0e6fdbfad74aec38d1c"
+    },
+    {
+      "reading": {
+        "siteId": "0x950b68c1a0cc414d1dcbdb9a7db845bc8f2f74a563beb3cb586f4cc774ec526c",
+        "device": "0x088604357682c799a184c31aa2513159c2b92Cd2",
+        "periodStart": 1789868700,
+        "periodEnd": 1789869600,
+        "wh": 60713,
+        "nonce": 116
+      },
+      "signature": "0x07f2032e66d4de6913ec7e30044f85e55dee44ade02096a27afb76705ad7145d5def587da461e8a3784c6ca54bdf098a604131ae0021e54bce51f1f87af0b2471c"
+    }
+  ]
+}

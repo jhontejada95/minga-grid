@@ -1,108 +1,219 @@
-# MINGA Nature
+# MINGA Grid
 
-> **“MINGA Nature connects every conservation payment to an agreement, reviewed evidence, and the people responsible for the territory.”**
+**Get paid for the electricity you don't use when the grid is about to fall.**
 
-MINGA Nature is an open protocol on **HSK Chain** (Testnet Chain ID `133`) for creating, funding, and settling conservation agreements with milestone disbursements authorized by dual cryptographic signatures (EIP-712) from an independent reviewer and a community representative.
+An agent watches Colombia's real wholesale electricity price. When an hour costs far more than an
+ordinary one, it calls an event. Smart meters sign what they measured. The agent verifies the
+reduction against a baseline and settles it on HSK Chain in stablecoin — in one transaction that
+pays the site and the protocol together, or pays neither.
+
+**No human signature takes part in the payment.**
+
+| | |
+|---|---|
+| Live app | https://minga-grid.vercel.app |
+| Programme on HSK | [`0x315DE6Ff…809cEC`](https://testnet-explorer.hskchain.net/address/0x315DE6Ff84680012cf81bFd9C256032996809cEC) |
+| A settled event | [`0xb075e576…c0e7ff9b`](https://testnet-explorer.hskchain.net/tx/0xb075e57669939aa557abe8393fea6b2cf1cae0a71c2715270ff1c2fac0e7ff9b) — 67.50 mUSD to the site, 7.50 to the protocol |
+| Network | HSK Chain testnet, chain id 133 |
+| Tracks | Colombia Hackathon · AI x Ethereum & Agent Economy · HSK Chain |
 
 ---
 
-## 🏛️ Architecture Overview
+## The problem
 
-The repository is structured as a TypeScript monorepo with three independently runnable components:
+Every evening between six and nine, Colombian wholesale electricity costs well over half again
+what it costs the rest of the day. Thermal plants set the price when hydro runs short of the peak.
+These are live figures from XM, the system operator, converted at the official exchange rate:
 
-```text
-apps/
-  frontend/          # Next.js 14, React, viem/wagmi, custom responsive theme (Forest Green & Amber)
-  backend/           # Fastify REST service, SQLite persistence, SIWE auth, AI review, MPP client, HSK indexer
-packages/
-  contracts/         # Solidity smart contracts (Hardhat, OpenZeppelin), test suite, deployment scripts
-  shared/            # Shared TypeScript types, ABIs, EIP-712 schemas, chain configurations
-fixtures/            # Synthetic demonstration packages (Pacific Mangrove Demo)
-docs/                # Architecture diagrams, 3-minute pitch & demo script, limitations
+| | |
+|---|---|
+| Evening window (18:00–21:00) | **≈ USD 0.31 / kWh** |
+| That day's 24-hour average | ≈ USD 0.19 / kWh |
+| Peak as a multiple of the day | **1.5–1.8×** |
+
+The fastest capacity any grid has is demand that steps aside for three hours. Demand response is
+an established, roughly eight-billion-dollar market in the countries that have it. It has not
+reached Latin America for an unglamorous reason: **metering, verifying, contracting and paying ten
+thousand small participants costs more than the electricity they would save.** The economics fail
+on paperwork, not on physics.
+
+That paperwork is what an agent, a stablecoin and a contract delete. It is the only reason a
+blockchain belongs anywhere near this problem — not transparency.
+
+## How it works
+
+```
+XM spot price ──► agent senses ──► event window declared
+                                          │
+  smart meter ──► signs every 15-min reading (EIP-712)
+                                          │
+                  agent verifies each signature, rebuilds the baseline,
+                  subtracts, compares against the committed reduction
+                                          │
+                  ┌───────────────────────┴───────────────────────┐
+             commitment met                                 commitment missed
+                  │                                               │
+        device + agent sign                              agent refuses to sign
+                  │                                               │
+        release() pays 90 / 10                            nothing happens
 ```
 
-### Trust & Separation Boundaries
+1. **The agent senses.** It reads XM's published hourly spot price and reservoir level and compares
+   the evening window against that same day's average. Dispatch is arithmetic — 1.4× elevated,
+   1.8× critical — not a model's opinion.
+2. **The meters sign.** Every fifteen-minute reading is signed with the device's own key. The
+   contract verifies a meter signature exactly as it verifies a human wallet, because
+   `SignatureChecker` does not care which is which.
+3. **The agent verifies.** It rebuilds the counterfactual from five ordinary evenings, subtracts
+   what was measured, and compares the result against the reduction the site committed to.
+4. **The contract pays.** If and only if the commitment was met, escrow releases: ninety per cent
+   to the site, ten per cent to the protocol treasury, atomically.
 
-- **HSK Smart Contracts**: The ultimate financial truth. Escrows funds, enforces required immutable parameters, validates dual signatures, and executes non-reversible splits directly to immutable payees.
-- **Backend Service**: Manages off-chain evidence manifests, provides Sign-In with Ethereum (SIWE), indexes HSK logs, runs deterministic document checks (optionally enriched by a language model via Groq), and can execute bounded MPP external research. *Status:* implemented and tested against real contracts; the Groq path is tested against a fake provider only, and a live payment to the Parallel gateway has not been exercised (it needs a funded operating account).
-- **Machine Payments Protocol (MPP)**: Strictly bounded operational micropayments (Parallel gateway: Search/Extract). MPP research is funded from a separate backend operational account and **never touches conservation escrow or participant wallets**.
-- **Frontend App**: presentation and wallet-interaction client (Next.js 14, wagmi/viem). It holds no custody, sends real transactions from the user's own wallet after simulating them, reads the terms straight from the contract and recomputes the terms hash before anyone accepts, and re-verifies every approval payload in the browser before asking for an EIP-712 signature. *Status:* the whole flow (create, accept, fund, evidence, review, dual signature, release) was run through the real UI against a local chain with real contracts and the real backend (`docs/local-stack.md`), using a scripted wallet. It has **not** yet been run with real wallets (MetaMask, WalletConnect, ...) or on HSK testnet.
+**The agent can say no, and that is tested.** If the readings fail verification, or the site missed
+its commitment, it refuses to sign and no payment is possible. An agent that only ever approves is
+a rubber stamp, and a rubber stamp is not worth putting on a chain.
 
----
+**The relayer is not an authoriser.** `release()` requires two signatures: the meter's and the
+agent's. Whoever broadcasts the transaction pays gas — their signature is nowhere in it. The demo
+lets you connect your own wallet and relay a settlement you did not authorise, which is the point.
 
-## 🚀 Quickstart & Local Setup
+## How it makes money
 
-### Prerequisites
-- Node.js >= 22.13 (the backend uses the built-in `node:sqlite`, so there are no native modules to compile; developed on Node 24)
-- npm >= 10.x
-- Optional, for the backend integration tests: [Foundry](https://getfoundry.sh) (`anvil`) on your PATH or `ANVIL_BIN` pointing to it. Without it those tests are skipped and say so.
+| Flow | Who pays | How much |
+|---|---|---|
+| **Take rate on every settlement** | the offtaker | **10%, as an on-chain split inside `release()`** |
+| Per-dispatch verification fee | the offtaker, machine to machine | per event called |
+| Capacity subscription | the offtaker | USD per MW-month committed |
 
-### 1. Installation
+The first one is not an invoice anyone has to chase. It is a split inside the settlement: the same
+transaction that pays the site pays the protocol, or neither happens. You can watch it execute in
+the transaction linked at the top of this file.
+
+The offtaker pays fifteen cents for a kilowatt-hour it would otherwise buy at thirty-one during the
+evening window. That is roughly half price for the same relief, and far cheaper than a blackout.
+The arbitrage is the business; the contract is only what makes it cheap enough to run at scale.
+
+## What is live on HSK testnet
+
+| Contract | Address |
+|---|---|
+| `AgreementFactoryRegistry` | [`0x3caa9a17892A5e111d01640C1Ab2F8d6814857a1`](https://testnet-explorer.hskchain.net/address/0x3caa9a17892A5e111d01640C1Ab2F8d6814857a1) |
+| `MockUSD` (mUSD, 6 decimals) | [`0xEE2CDdBAaDB687E4932cB26295ADC5F5Ab3631E1`](https://testnet-explorer.hskchain.net/address/0xEE2CDdBAaDB687E4932cB26295ADC5F5Ab3631E1) |
+| Demo programme | [`0x315DE6Ff84680012cf81bFd9C256032996809cEC`](https://testnet-explorer.hskchain.net/address/0x315DE6Ff84680012cf81bFd9C256032996809cEC) |
+
+Programme terms: a cold-storage warehouse commits to shedding **500 kWh** in the 18:00–21:00
+window; the offtaker pays **USD 0.15 per avoided kWh**, so **75 mUSD per event window**, split
+**90 / 10**. Budget 150 mUSD over two windows. Window 1 is settled — the agent verified 608.9 kWh
+avoided against a 1,038.1 kWh baseline. Window 2 is open, which is what the live demo settles.
+
+The device and agent identities are derived from public seed strings rather than stored, so the
+demo is reproducible on any machine. **They sign data and hold no funds.**
+
+## Architecture
+
+```
+apps/
+  frontend/     Next.js 14 — the landing page, the app, and four route handlers that ARE the
+                backend for the demand-response flow. No database, no indexer, no funded key.
+  backend/      Fastify + SQLite — SIWE, evidence storage, an HSK event indexer and a bounded
+                MPP research client. Used locally and by the inherited flow; the demo does not
+                need it, which is why the whole thing deploys to Vercel as one project.
+packages/
+  contracts/    Solidity (Hardhat, OpenZeppelin). Escrow, EIP-712 dual-signature release,
+                immutable payees and splits, timeout refunds.
+  shared/       The agent itself, the meter simulator, the live XM feed, EIP-712 schemas,
+                canonical JSON and ABIs — one implementation shared by all of the above.
+```
+
+**Data sources, both public and unauthenticated:**
+
+- [XM](https://www.xm.com.co) — hourly spot price (`PrecBolsNaci`) and useful reservoir volume
+  (`PorcVoluUtilDiar`), via `https://servapibi.xm.com.co`.
+- Superfinanciera via [datos.gov.co](https://www.datos.gov.co) — the official COP/USD rate, so
+  prices are shown in dollars without inventing a conversion.
+
+XM publishes a couple of days behind, so the app always shows which day a figure belongs to. If a
+source cannot be reached, the app falls back to a fixture **that says on the page that it is a
+fixture**.
+
+## Running it
+
+Requires Node ≥ 22.13 (the backend uses `node:sqlite`). Foundry is optional and only needed for the
+contract-integration tests.
+
 ```bash
 npm install
+cp .env.example .env          # every public value already has a working default
+
+npm run contracts:test        # 56 tests
+npm run backend:test          # 125 tests (anvil-dependent ones skip without Foundry)
+
+npm run build --workspace=@minga/shared
+npm run dev --workspace=@minga/frontend        # http://localhost:3000
 ```
 
-### 2. Configure Environment
-Copy `.env.example` to `.env` in root and configure required variables:
+Create and settle a programme on HSK testnet yourself (spends testnet gas; needs a funded key in
+`DEPLOYER_PRIVATE_KEY`):
+
 ```bash
-cp .env.example .env
+node apps/backend/scripts/grid-hsk.mjs --dry-run   # balances and identities, sends nothing
+node apps/backend/scripts/grid-hsk.mjs --fresh     # create, fund and settle a new programme
 ```
 
-### 3. Compile & Test Smart Contracts
-```bash
-npm run contracts:compile
-npm run contracts:test
-```
+## Tests
 
-### 4. Run Development Services
-- **Backend Service (Port 4000)**. Reads the root `.env`; needs `FACTORY_ADDRESS` (see the deployment table below). Its API description is served at `GET /api/v1/openapi.json`.
-  ```bash
-  npm run build --workspace=@minga/shared   # once, and after changing packages/shared
-  npm run backend:dev
-  ```
-- **Frontend Application (Port 3000)**. Set the `NEXT_PUBLIC_*` variables from `.env.example` (factory, mUSD, API base URL; `NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID` is optional and enables mobile wallets):
-  ```bash
-  npm run frontend:dev
-  ```
-- **Local stack without real funds** (throwaway chain, real contracts, real backend, scripted end-to-end UI run): see [docs/local-stack.md](docs/local-stack.md).
+| Suite | Result |
+|---|---|
+| Contracts (Hardhat) | **56 / 56** |
+| Backend + agent (`node --test`) | **125 / 125** |
 
-### 5. Tests
-```bash
-npm run contracts:test      # 56 Hardhat tests
-npm run backend:test        # 108 tests: config, canonical JSON, SIWE, evidence, review (deterministic + model), MPP policy, indexer, approvals
-npm run backend:typecheck
-npm run test --workspace=@minga/frontend   # 20 unit tests: amounts, roles, error translation, pre-signature approval checks
-npm run e2e:local --workspace=@minga/frontend   # 14-step UI run on the local stack (needs the stack running, see docs/local-stack.md)
-```
-The backend integration tests deploy the real contracts to a local `anvil` chain and exercise the API end to end, including a real `release()` with the signatures the API produced.
+The agent tests run against the real contracts on a local anvil chain, not against mocks. They
+cover the happy path with its 90/10 split, a missed commitment, a tampered reading, a replayed
+nonce, a reading outside the declared window, a calm grid that produces no event, and the case that
+matters most: **a single machine signature cannot move funds.**
+
+## What is real, and what is not
+
+Being precise about this is part of the work, not a disclaimer bolted on.
+
+**Real.** The contracts, deployed and holding escrow. The EIP-712 signature scheme and its
+verification. The agent's arithmetic and its refusal logic. The grid price and reservoir level,
+read live from XM. The payment and the 90/10 split, which you can open on Blockscout.
+
+**Not real.** The meter readings are synthetic, generated deterministically and signed with a
+development key. There is no physical meter connected — and with one, the baseline would still need
+five days of history before it existed. A signature proves **non-repudiation**: that this device
+said this. It does **not** prove the meter was not physically tampered with. That requires a secure
+element, and it is the next step rather than a solved problem.
+
+The baseline is a convention agreed in the programme terms, not a measurement of a world that did
+not happen. No utility has signed anything. The token has no monetary value.
+
+`docs/limitations.md` carries the full list, including the contract's constraints and what has not
+been audited.
+
+## Roadmap
+
+The contract knows nothing about electricity. It knows that an offtaker funded a budget, a device
+signed a measurement, and an agent verified it against an agreed baseline. That is why the next
+steps are mostly about sensors and counterparties rather than about Solidity:
+
+- Secure-element device identity, so a signature says something about the physical meter.
+- Aggregation: one programme over thousands of sites instead of one, which is how demand response
+  actually reaches households.
+- A pilot with a single large consumer that already has interval metering, before going near a
+  regulator.
+- Other verticals on the same machinery: cubic metres of water not drawn during a drought,
+  verified fire-risk mitigation around a páramo.
+
+## License
+
+MIT. See [LICENSE](LICENSE).
 
 ---
 
-## 📜 Smart Contracts (`packages/contracts`)
+*A **minga** is what people in the Andes call it when a whole community drops what it is doing and
+works together for one common goal. Ten thousand households turning things off at the same hour so
+the grid does not fall is a minga. This makes it pay.*
 
-- `AgreementFactoryRegistry.sol`: Factory that creates and registers standalone `ConservationAgreement` instances.
-- `ConservationAgreement.sol`: Escrow contract with 2 sequential milestones, immutable parameters (`termsHash`), EIP-712 approval validation, split disbursements to community & monitoring payees, and timeout refund protections.
-- `MockUSD.sol`: Standard 6-decimal test ERC20 token for hackathon simulation on HSK Testnet.
-
-### Deployed on HSK Testnet (chain ID 133) — 2026-09-19
-
-Explorer: https://testnet-explorer.hskchain.net (Blockscout).
-
-| Contract | Address | Deployment tx | Block | Source verification |
-|---|---|---|---|---|
-| `MockUSD` (mUSD, 6 decimals) | `0xEE2CDdBAaDB687E4932cB26295ADC5F5Ab3631E1` | `0xb6cad658…443412` | 33328729 | Full match |
-| `AgreementFactoryRegistry` | `0x3caa9a17892A5e111d01640C1Ab2F8d6814857a1` | `0x90c521a6…c1888928` | 33328730 | **Partial match** (see below) |
-
-Full hashes and the deployer address are in `packages/contracts/deployed-addresses.json`. The indexer starts at block `33328730`.
-
-Post-deploy checks run against the live RPC: both contracts have code (factory 16 604 bytes, mUSD 1 918 bytes, identical to the compiled runtime), `agreementCount() == 0`, `mUSD.decimals() == 6`, both deployment receipts have `status 1`.
-
-Verification note: the explorer's API gateway rejects uploads above ~100 KB with HTTP 413, and the factory's OpenZeppelin dependency closure is ~205 KB. `hardhat verify` therefore fails for the factory. `npm run verify:blockscout --workspace=@minga/contracts -- <address> <ContractName>` sends only the needed sources and, if still too large, strips comments and indentation. That does not change the executable bytecode but changes the metadata hash, so Blockscout reports a *partial* match. Agreements created by the factory need the same treatment.
-
----
-
-## 🧪 Verification & Security Notes
-
-- Banner in UI: **“HSK testnet · No monetary value · Demonstration project and evidence.”**
-- Signatures cannot replay across instances, nonces, or chain IDs.
-- Neither the AI assistant nor the MPP agent can authorize milestone payments or touch conservation funds.
+*Built for the EAG hackathon in Cali, Colombia.*

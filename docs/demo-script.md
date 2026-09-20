@@ -1,46 +1,88 @@
-# MINGA Nature — 3-Minute Hackathon Demo Script
+# MINGA Grid — three-minute demo
 
-> **Demo Project**: Pacific Mangrove — Demo  
-> **Budget**: 100 mUSD (MockUSD) across 2 sequential milestones (50 mUSD each)  
-> **Split**: 80% Community Execution (40 mUSD) / 20% Monitoring (10 mUSD)  
-> **Network**: HSK Chain Testnet (Chain ID 133)
+**Live app:** https://minga-grid.vercel.app
+**Programme:** https://testnet-explorer.hskchain.net/address/0x315DE6Ff84680012cf81bFd9C256032996809cEC
+
+Have the app open on `/app`, a wallet with a little testnet HSK ready, and the explorer in a second
+tab. Event window 2 is unsettled and reserved for this.
 
 ---
 
-### Timing Breakdown
+### 0:00 – 0:30 · The hook, without touching the keyboard
 
-#### 0:00 – 0:25 · Introduction & Agreement Context
-- Open the MINGA Nature UI. Point out the visible banner:  
-  *“HSK testnet · No monetary value · Demonstration project and evidence.”*
-- Present the core thesis: Connecting conservation disbursements directly to immutable agreements, verifiable evidence, and dual authorization.
-- Introduce the participants: Funder, Community Representative, and Independent Reviewer.
+> "In Colombia, every evening between six and nine, wholesale electricity costs about sixty per cent
+> more than it costs the rest of the day. That number is on screen and it comes from XM, the system
+> operator, live.
+>
+> The cheapest megawatt on any grid is the one nobody uses. In the US and Europe you get paid for
+> not using it — it's an eight-billion-dollar market. In Latin America it doesn't exist, because
+> verifying and paying ten thousand small participants costs more than the electricity they save.
+>
+> A **minga** is when a whole community drops what it's doing and works together for one common
+> goal. MINGA Grid pays people for exactly that."
 
-#### 0:25 – 0:55 · Reusable Factory Protocol
-- Navigate to the **Create Agreement** screen.
-- Demonstrate deploying a second agreement (**Agreement B**) directly from the UI to prove the protocol is a multi-tenant factory on HSK, not a one-off hardcoded contract.
-- Switch back to **Agreement A (Pacific Mangrove — Demo)**, showing it has already been accepted and funded with genuine on-chain HSK transactions. Open the HSK explorer links for the funding receipt.
+### 0:30 – 1:00 · The site and the measurement
 
-#### 0:55 – 1:25 · Evidence Manifest & AI / MPP Research
-- Open Milestone 1. Show the **Incomplete Evidence Manifest** (flags missing required field reports).
-- Switch to the **Complete Evidence Manifest**.
-- Trigger the AI Review summary: shows deterministic checklist matches and model-assisted highlights.
-- If MPP is active: Show the bounded Parallel Search/Extract micro-transaction ($0.01) verifying public coastal data, displaying receipt metadata.
-- Emphasize: *“MPP paid for research from an operational account; it did NOT touch conservation escrow.”*
+Point at the chart.
 
-#### 1:25 – 2:05 · Dual Human Authorization & Simulation
-- Show the Reviewer's cryptographic signature in place.
-- Attempt to call `release()` with only one signature: show the frontend pre-flight simulation catching the rejection.
-- Connect the Community wallet and sign the identical EIP-712 typed data payload.
-- Both signatures are now valid and aligned on the exact manifest hash and current nonce.
+> "This is a cold-storage warehouse. The dashed line is what five ordinary evenings predicted it
+> would use. The blue line is what it actually used during the event. The green band between them —
+> six hundred and nine kilowatt-hours — is what gets paid for.
+>
+> Every fifteen-minute reading is signed by the meter's own key."
 
-#### 2:05 – 2:35 · On-chain Settlement & Immutable Splits
-- Submit the `release()` transaction on HSK Chain.
-- Display the confirmed payment receipt:
-  - 40 mUSD automatically paid to Community Execution account.
-  - 10 mUSD automatically paid to Monitoring account.
-  - 50 mUSD remaining in escrow for Milestone 2.
-- Attempt a duplicate release: show transaction reverts immediately.
+### 1:00 – 1:50 · The agent, live
 
-#### 2:35 – 3:00 · Transparency & Wrap-up
-- Show the confirmed event activity log and receipt details.
-- Conclude with MINGA's mission: infrastructure that eliminates ambiguity and guarantees money reaches the people stewarding the land.
+Press **Run the settlement agent**. Let the six steps appear.
+
+> "Sense: it read XM's price and compared the window against that day's own average. Verify: it
+> recovered the signer of all twelve readings. Baseline, measure, decide — six hundred and nine
+> against a five-hundred commitment. And it signed.
+>
+> Nobody clicked anything."
+
+**Then switch to "Site missed its commitment" and run it again.** This is the beat that matters.
+
+> "Same agent, different evening. The site barely reduced. It verifies the readings fine — they're
+> honest, just disappointing — and then it refuses to sign. No transaction exists. An agent that
+> only ever says yes isn't verifying anything."
+
+### 1:50 – 2:30 · Settling on chain, from a wallet that authorises nothing
+
+Switch back to the delivered scenario, run it, connect the wallet, press **Relay the settlement**.
+
+> "I'm about to send this transaction, and my signature is not in it. The contract wants two
+> signatures: the meter's and the agent's. I'm paying gas. That's all a relayer is."
+
+Open the transaction on Blockscout.
+
+### 2:30 – 3:00 · The business, executing
+
+Point at the split in the receipt.
+
+> "Sixty-seven fifty to the site. Seven fifty to the protocol treasury. That ten per cent is our
+> revenue, and it isn't on a slide — it's a split inside the same transaction that paid the site.
+> If they got paid, we got paid. No invoicing, no collections.
+>
+> The offtaker pays fifteen cents for a kilowatt-hour it would have bought at thirty-one. Half
+> price for the same relief.
+>
+> And the contract knows nothing about electricity. It knows an offtaker funded a budget, a device
+> signed a measurement, and an agent verified it. Swap the sensor and it's water in a drought."
+
+### The honest line — say it before anyone asks
+
+> "The grid price is real. The meter readings are synthetic and signed by a development key. The
+> signature proves non-repudiation, not physical tamper resistance — that needs a secure element,
+> and it's the next step."
+
+---
+
+## If something fails on stage
+
+| Problem | What to do |
+|---|---|
+| XM unreachable | The app says "FIXTURE" on the page. Read it out: "that's the fallback labelling itself, which is the behaviour I want." |
+| Wallet or network trouble | Run the agent without relaying. The six steps and the refusal are the demo; the transaction is the proof. |
+| Site down entirely | Open the settled transaction on Blockscout — window 1 is already on chain — and talk through it. |
+| Window 2 already settled | `node apps/backend/scripts/grid-hsk.mjs --fresh` creates a new programme in about a minute. |

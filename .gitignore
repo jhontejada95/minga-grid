@@ -22,7 +22,10 @@ cache/
 typechain-types/
 
 # Database and Storage
-data/
+# Anchored on purpose: a bare `data/` also matched apps/frontend/src/data,
+# which silently kept the whole frontend data layer out of the repository.
+/data/
+apps/backend/data/
 *.sqlite
 *.sqlite3
 *.db
@@ -70,3 +73,32 @@ Thumbs.db
 .vscode/
 *.swp
 *.swo
+
+.vercel
+
+# ── Kept out of the public repository ───────────────────────────────────────
+# These stay on disk and keep working locally; they are simply not part of what
+# a reader of this project should have to wade through.
+
+# Agent tooling and vendored third-party skills (1.6 MB, not ours)
+.claude/
+.agents/
+
+# Internal working documents: pivot rationale, build journal, pitch rehearsal.
+# Written in Spanish for the author, not for a reader of the codebase.
+CLAUDE.md
+PIVOT.md
+PROGRESS.md
+EXPLICACION.md
+AGENTS.md
+
+# Specification and brand asset of the conservation product this pivoted away
+# from. Keeping them here would only mislead someone opening the repository.
+MINGA_Nature_Implementation_Brief_v3.1_MPP.md
+Logo_minga_nature.png
+
+# Code retired by the pivot. It does not compile: it imports a data layer that a
+# mis-anchored ignore rule kept out of the original repository (see the note at
+# the top of this file). Kept locally in case that layer is ever recovered.
+apps/frontend/legacy/
+docs/legacy/
