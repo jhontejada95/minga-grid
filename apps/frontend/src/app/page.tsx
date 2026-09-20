@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { PROVENANCE, PROVENANCE_ORDER, type ProvenanceKind } from "@minga/shared";
 
 /**
  * The explanatory page. Static on purpose: it must open instantly for someone following a link
@@ -27,8 +28,33 @@ const EXPLORER = process.env.NEXT_PUBLIC_EXPLORER_URL ?? "https://testnet-explor
 const AGREEMENT = process.env.NEXT_PUBLIC_GRID_AGREEMENT_ADDRESS ?? "0x315DE6Ff84680012cf81bFd9C256032996809cEC";
 const REPO = "https://github.com/jhontejada95/minga-grid";
 
+/** Where a number came from, in the theme's own colours — see packages/shared/src/provenance.ts. */
+const TONE_COLOR: Record<Provenance["tone"], string> = {
+  telemetry: CYAN,
+  verified: EMERALD,
+  neutral: MUTED,
+  caution: AMBER,
+};
+
+type Provenance = (typeof PROVENANCE)[ProvenanceKind];
+
 function glow(color: string) {
   return `0 0 20px -4px ${color}40`;
+}
+
+function ProvenanceBadge({ kind }: { kind: ProvenanceKind }) {
+  const p = PROVENANCE[kind];
+  const color = TONE_COLOR[p.tone];
+  return (
+    <span
+      title={p.explanation}
+      className="inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.06em]"
+      style={{ borderColor: `${color}33`, background: `${color}1a`, color, fontFamily: MONO }}
+    >
+      {kind === "live" && <span className="h-[5px] w-[5px] shrink-0 animate-pulse rounded-full" style={{ background: color }} />}
+      {p.label}
+    </span>
+  );
 }
 
 function Card({ children, accent, className = "", style }: { children: React.ReactNode; accent?: string; className?: string; style?: React.CSSProperties }) {
@@ -74,15 +100,15 @@ function Prose({ children, strong }: { children: React.ReactNode; strong?: boole
   );
 }
 
-function Figure({ icon, value, label, foot, accent }: { icon: React.ReactNode; value: string; label: string; foot?: string; accent?: string }) {
+function Figure({ icon, value, label, provenance, accent }: { icon: React.ReactNode; value: string; label: string; provenance: ProvenanceKind; accent?: string }) {
   return (
     <Card accent={accent}>
-      <svg viewBox="0 0 24 24" width={20} height={20} style={{ color: accent ?? MUTED }}>{icon}</svg>
+      <div className="flex items-start justify-between gap-2">
+        <svg viewBox="0 0 24 24" width={20} height={20} style={{ color: accent ?? MUTED }}>{icon}</svg>
+        <ProvenanceBadge kind={provenance} />
+      </div>
       <div className="mt-3 text-[28px] font-bold tabular-nums" style={{ color: accent ?? INK, fontFamily: MONO }}>{value}</div>
       <div className="mt-1 text-[13px]" style={{ color: INK_2 }}>{label}</div>
-      {foot && (
-        <div className="mt-3 border-t pt-2 text-[11px]" style={{ borderColor: BORDER, color: MUTED, fontFamily: MONO }}>{foot}</div>
-      )}
     </Card>
   );
 }
@@ -95,12 +121,6 @@ const ICONS = {
     <>
       <circle cx={12} cy={12} r={8.5} fill="none" stroke="currentColor" strokeWidth={1.6} />
       <path d="M12 7.5v9M9.5 9.8c0-1 1-1.8 2.5-1.8s2.5.7 2.5 1.7-1 1.4-2.5 1.8-2.5.9-2.5 1.9 1 1.7 2.5 1.7 2.5-.7 2.5-1.7" fill="none" stroke="currentColor" strokeWidth={1.4} strokeLinecap="round" />
-    </>
-  ),
-  globe: (
-    <>
-      <circle cx={12} cy={12} r={8.5} fill="none" stroke="currentColor" strokeWidth={1.6} />
-      <path d="M3.5 12h17M12 3.5c2.5 2.3 3.8 5.3 3.8 8.5s-1.3 6.2-3.8 8.5c-2.5-2.3-3.8-5.3-3.8-8.5S9.5 5.8 12 3.5Z" fill="none" stroke="currentColor" strokeWidth={1.4} />
     </>
   ),
   pulse: <path d="M2 12h4l2-6 4 12 2-6h4" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round" />,
@@ -295,10 +315,9 @@ export default function Landing() {
         </section>
 
         <Section id="problem" eyebrow="The problem" title="The cheapest megawatt is the one nobody uses. Nobody gets paid for it.">
-          <div className="grid gap-3 sm:grid-cols-3">
-            <Figure icon={ICONS.bolt} value="1.5–1.8×" label="evening peak vs the day's own average" foot="Peak risk" accent={AMBER} />
-            <Figure icon={ICONS.coin} value="$0.31" label="USD per kWh, 18:00–21:00 window" foot="18:00–21:00" accent={BLUE} />
-            <Figure icon={ICONS.globe} value="$8.4B" label="demand-response market that skipped the region" foot="LatAm deficit" />
+          <div className="grid gap-3 sm:grid-cols-2">
+            <Figure icon={ICONS.bolt} value="1.5–1.8×" label="evening peak vs the day's own average" provenance="live" accent={AMBER} />
+            <Figure icon={ICONS.coin} value="$0.31" label="USD per kWh, 18:00–21:00 window" provenance="live" accent={BLUE} />
           </div>
           <Prose>
             Every evening between six and nine, Colombian wholesale electricity costs well over half again what it
@@ -376,9 +395,9 @@ export default function Landing() {
 
         <Section id="business" eyebrow="The business" title="Ten per cent of every settlement, enforced inside the contract.">
           <div className="grid gap-3 sm:grid-cols-3">
-            <Figure icon={ICONS.coin} value="10%" label="protocol fee, split on chain" accent={EMERALD} />
-            <Figure icon={ICONS.coin} value="90%" label="to the site that reduced" accent={BLUE} />
-            <Figure icon={ICONS.coin} value="$0.15" label="paid per avoided kWh" />
+            <Figure icon={ICONS.coin} value="10%" label="protocol fee, split on chain" provenance="terms" accent={EMERALD} />
+            <Figure icon={ICONS.coin} value="90%" label="to the site that reduced" provenance="terms" accent={BLUE} />
+            <Figure icon={ICONS.coin} value="$0.15" label="paid per avoided kWh" provenance="terms" />
           </div>
           <div className="grid gap-3 sm:grid-cols-2">
             <Card>
@@ -495,6 +514,19 @@ export default function Landing() {
             together for one common goal. Ten thousand households turning things off at the same hour so the grid does
             not fall is a minga. We just made it pay.
           </p>
+
+          <div className="mt-6">
+            <Eyebrow>Where every number on this page comes from</Eyebrow>
+            <dl className="mt-3 grid gap-3 sm:grid-cols-2">
+              {PROVENANCE_ORDER.map((kind) => (
+                <div key={kind} className="flex items-start gap-3">
+                  <dt><ProvenanceBadge kind={kind} /></dt>
+                  <dd className="text-[12px] leading-relaxed" style={{ color: INK_2 }}>{PROVENANCE[kind].explanation}</dd>
+                </div>
+              ))}
+            </dl>
+          </div>
+
           <div className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-2 text-[12px]" style={{ color: MUTED, fontFamily: MONO }}>
             <span>Built for the EAG hackathon in Cali, Colombia · HSK Chain testnet</span>
             <a href={REPO} target="_blank" rel="noreferrer" className="transition-colors hover:text-white">GitHub</a>

@@ -13,7 +13,7 @@
  */
 import { useCallback, useEffect, useState } from "react";
 import { useAccount, useWaitForTransactionReceipt, useWriteContract } from "wagmi";
-import { conservationAgreementAbi } from "@minga/shared";
+import { conservationAgreementAbi, PROVENANCE, PROVENANCE_ORDER, type ProvenanceKind } from "@minga/shared";
 import type { Address, Hex } from "viem";
 import { CHAIN_ID, EXPLORER_URL } from "@/lib/config";
 import { EventChart } from "./EventChart";
@@ -31,9 +31,34 @@ const MUTED = "#64748B";
 const HAIRLINE = "#1E293B";
 const BLUE = "#3B82F6";
 const EMERALD = "#10B981";
+const AMBER = "#F59E0B";
+const CYAN = "#06B6D4";
 const STATUS = { good: "#10B981", warning: "#F59E0B", critical: "#F43F5E" } as const;
 const SANS = "'Plus Jakarta Sans', 'Inter', system-ui, sans-serif";
 const MONO = "'JetBrains Mono', ui-monospace, monospace";
+
+/** Where a number came from, in the theme's own colours — see packages/shared/src/provenance.ts. */
+const TONE_COLOR: Record<(typeof PROVENANCE)[ProvenanceKind]["tone"], string> = {
+  telemetry: CYAN,
+  verified: EMERALD,
+  neutral: MUTED,
+  caution: AMBER,
+};
+
+function ProvenanceBadge({ kind }: { kind: ProvenanceKind }) {
+  const p = PROVENANCE[kind];
+  const color = TONE_COLOR[p.tone];
+  return (
+    <span
+      title={p.explanation}
+      className="inline-flex shrink-0 items-center gap-1.5 rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.06em]"
+      style={{ borderColor: `${color}33`, background: `${color}1a`, color, fontFamily: MONO }}
+    >
+      {kind === "live" && <span className="h-[5px] w-[5px] shrink-0 animate-pulse rounded-full" style={{ background: color }} />}
+      {p.label}
+    </span>
+  );
+}
 
 type Scenario = "delivered" | "shortfall";
 
@@ -47,10 +72,16 @@ const PIPELINE: [string, string][] = [
   ["sign", "produce one of the two signatures release() requires"],
 ];
 
-function Panel({ title, subtitle, children }: { title: string; subtitle?: string; children: React.ReactNode }) {
+function Panel({
+  title, subtitle, badge, badgeDate, children,
+}: { title: string; subtitle?: string; badge?: ProvenanceKind; badgeDate?: string; children: React.ReactNode }) {
   return (
     <section className="rounded-lg border p-5 backdrop-blur-md" style={{ background: SURFACE, borderColor: HAIRLINE }}>
-      <h2 className="text-[15px] font-bold" style={{ color: INK, fontFamily: SANS }}>{title}</h2>
+      <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+        <h2 className="text-[15px] font-bold" style={{ color: INK, fontFamily: SANS }}>{title}</h2>
+        {badge && <ProvenanceBadge kind={badge} />}
+        {badgeDate && <span className="text-[11px]" style={{ color: MUTED, fontFamily: MONO }}>published {badgeDate}</span>}
+      </div>
       {subtitle && <p className="mb-4 mt-1 text-[12px]" style={{ color: MUTED, fontFamily: MONO }}>{subtitle}</p>}
       {!subtitle && <div className="mb-4" />}
       {children}
@@ -58,12 +89,13 @@ function Panel({ title, subtitle, children }: { title: string; subtitle?: string
   );
 }
 
-function Stat({ label, value, note, accent }: { label: string; value: string; note?: string; accent?: string }) {
+function Stat({ label, value, note, accent, badge }: { label: string; value: string; note?: string; accent?: string; badge?: ProvenanceKind }) {
   return (
     <div className="rounded-md border px-3 py-2.5" style={{ borderColor: accent ?? HAIRLINE }}>
       <div className="text-[11px] uppercase tracking-wide" style={{ color: MUTED, fontFamily: MONO }}>{label}</div>
       <div className="mt-1 whitespace-nowrap text-[22px] font-bold tabular-nums" style={{ color: accent ?? INK, fontFamily: MONO }}>{value}</div>
       {note && <div className="mt-0.5 text-[11px]" style={{ color: MUTED }}>{note}</div>}
+      {badge && <div className="mt-1.5"><ProvenanceBadge kind={badge} /></div>}
     </div>
   );
 }
@@ -187,6 +219,8 @@ export function GridDashboard() {
         <Panel
           title="Grid status"
           subtitle={signal ? `${signal.signal.source}${signal.signal.reservoirPct !== null ? ` · reservoirs at ${signal.signal.reservoirPct.toFixed(1)}%` : ""}` : undefined}
+          badge="live"
+          badgeDate={signal?.signal.observedDate}
         >
           <div className="grid gap-4 md:grid-cols-[auto,1fr]">
             <div className="flex items-center gap-3 rounded-md border px-4 py-3" style={{ borderColor: stressColor }}>
@@ -207,7 +241,7 @@ export function GridDashboard() {
                 note={`dispatch at ${signal?.thresholds.elevatedPeakRatio ?? 1.4}×`}
                 accent={BLUE}
               />
-              <Stat label="Programme pays" value="$0.15" note="per avoided kWh" accent={EMERALD} />
+              <Stat label="Programme pays" value="$0.15" note="per avoided kWh" accent={EMERALD} badge="terms" />
             </div>
           </div>
           {signal && (
@@ -223,20 +257,22 @@ export function GridDashboard() {
           <Panel
             title="The site"
             subtitle={site ? `${site.siteName} · meter ${short(site.device)} · event window ${program?.terms.eventWindowLocal ?? ""}` : undefined}
+            badge="simulated"
           >
             {site && curve ? (
               <>
                 <EventChart baseline={site.baselineCurve} actual={curve.curve} actualLabel={`Measured — ${curve.label.toLowerCase()}`} />
                 <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
-                  <Stat label="Committed" value={kwh(site.committedWh)} note="kWh agreed reduction" />
+                  <Stat label="Committed" value={kwh(site.committedWh)} note="kWh agreed reduction" badge="terms" />
                   <Stat
                     label="Avoided"
                     value={result?.settlement ? kwh(result.settlement.avoidedWh) : "—"}
                     note={result?.settlement ? "kWh verified by the agent" : "run the agent to verify"}
                     accent={EMERALD}
+                    badge="simulated"
                   />
-                  <Stat label="Site earned" value={site.earnings ? usd(site.earnings.site) : "—"} note="90% share, all programmes" />
-                  <Stat label="Treasury" value={site.earnings ? usd(site.earnings.treasury) : "—"} note="10% fee, all programmes" accent={BLUE} />
+                  <Stat label="Site earned" value={site.earnings ? usd(site.earnings.site) : "—"} note="90% share, all programmes" badge="onchain" />
+                  <Stat label="Treasury" value={site.earnings ? usd(site.earnings.treasury) : "—"} note="10% fee, all programmes" accent={BLUE} badge="onchain" />
                 </div>
               </>
             ) : (
@@ -369,7 +405,7 @@ export function GridDashboard() {
         </div>
 
         {/* Programme strip */}
-        <Panel title="The programme on HSK" subtitle={program?.connected ? undefined : program?.reason}>
+        <Panel title="The programme on HSK" subtitle={program?.connected ? undefined : program?.reason} badge={program?.connected ? "onchain" : undefined}>
           {program?.connected ? (
             <>
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
@@ -405,9 +441,19 @@ export function GridDashboard() {
         </Panel>
 
         <footer className="pb-6 text-[11px]" style={{ color: MUTED }}>
-          A <em>minga</em> is when a whole community drops what it is doing and works together for one common goal.
-          Baseline method: {program?.terms.baselineMethod ?? "—"}. The agent produces one of the two signatures the
-          contract requires and cannot change the amount.
+          <p>
+            A <em>minga</em> is when a whole community drops what it is doing and works together for one common goal.
+            Baseline method: {program?.terms.baselineMethod ?? "—"}. The agent produces one of the two signatures the
+            contract requires and cannot change the amount.
+          </p>
+          <dl className="mt-4 grid gap-2.5 border-t pt-4 sm:grid-cols-2" style={{ borderColor: HAIRLINE }}>
+            {PROVENANCE_ORDER.map((kind) => (
+              <div key={kind} className="flex items-start gap-2.5">
+                <dt><ProvenanceBadge kind={kind} /></dt>
+                <dd className="leading-relaxed">{PROVENANCE[kind].explanation}</dd>
+              </div>
+            ))}
+          </dl>
         </footer>
       </div>
     </div>

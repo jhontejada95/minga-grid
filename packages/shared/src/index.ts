@@ -10,3 +10,4 @@ export * from "./grid-keys.js";
 export * from "./meter-sim.js";
 export * from "./settlement.js";
 export * from "./grid-feed.js";
+export * from "./provenance.js";

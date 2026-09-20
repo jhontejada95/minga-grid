@@ -109,3 +109,60 @@ npx vercel --prod
 ```
 
 Do not connect the Vercel project to a git repository.
+
+---
+
+# Addendum — label where every number came from
+
+Added after the brief was first written. **Do this as part of the redesign, not afterwards.** It is
+the difference between a demo that looks confident and one that can be trusted, and it is also what
+stops anyone — including the person presenting — from having to guess what is real.
+
+## The rule
+
+Every figure the interface shows belongs to exactly one of four kinds, and the interface says which.
+
+The vocabulary is already in code: `PROVENANCE` and `PROVENANCE_ORDER` in
+`packages/shared/src/provenance.ts`. **Import it; do not retype the strings.** It exists so the API
+and the UI cannot drift apart and describe the same number two different ways.
+
+| Kind | Badge | Applies to | Tone |
+|---|---|---|---|
+| `onchain` | `ON-CHAIN` | budget, paid out, escrow, the split, each window's receipt, the site's and treasury's balances | verified → emerald |
+| `live` | `LIVE · XM` | window price, day average, peak ratio, reservoir level, the exchange rate | telemetry → cyan |
+| `terms` | `PROGRAMME TERMS` | committed 500 kWh, the USD 0.15 tariff, the 18:00–21:00 window, the 90/10 split, the baseline method | neutral → muted |
+| `simulated` | `SIMULATED` | the meter readings, the consumption chart, avoided kWh | caution → amber |
+
+## Where the badges go
+
+- **Grid status panel** → one `LIVE · XM` badge in the panel header, with the reading's date next to
+  it. Do not put a badge on every tile in the panel; one per panel is enough when the whole panel
+  shares a source.
+- **The site panel** → `SIMULATED` on the chart. This is the one that must not be subtle. Amber, in
+  the panel header, where the eye lands before it reaches the chart.
+- **The programme strip** → `ON-CHAIN`.
+- **Any tile showing a term** (committed kWh, "programme pays $0.15", the split) → `PROGRAMME TERMS`.
+- **A legend**, once per page, in the footer: the four badges with their one-line explanation from
+  `PROVENANCE[kind].explanation`. Use `PROVENANCE_ORDER` for the order.
+
+Badge styling: the design system's chip — mono `label-caps`, a 10% tint of the tone colour, a 20%
+border of the same. The live one may carry the pulsing dot; the others must not, because they are
+not streaming.
+
+Each badge carries its `explanation` as a `title` attribute so hovering answers the question without
+leaving the page.
+
+## On the landing
+
+Same four badges beside the figures in the problem section and the economics section. The honesty
+section then stops being an apology at the bottom of the page and becomes the legend for something
+the reader has already been seeing all the way down.
+
+## Why this matters more than it looks
+
+The reference design invented telemetry (see section 1). Once every real number carries a visible
+source, an invented one has nowhere to hide — there is no badge you could honestly put on it. The
+labelling system and the audit are the same piece of work approached from two directions.
+
+If you find yourself wanting to show a number you cannot badge, that is the system telling you to
+delete it.
